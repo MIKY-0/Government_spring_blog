@@ -1,24 +1,22 @@
 {{> layout/header}}
 
-<div class="container p-5">
-    <div class="card">
-        <div class="card-header"><b>글 수정</b></div>
-        <div class="card-body">
-            <form action="/board/{{board.id}}/update" method="post">
-                <div class="mb-3">
-                            <!-- readonly : 수정불가. 읽기만 가능. 정해져있는 값으로만. -->
-                    <input type="text" class="form-control" value="{{board.username}}" readonly>
-                </div>
-                <div class="mb-3">
-                    <input type="text" class="form-control" name="title" value="{{board.title}}">
-                </div>
-                <div class="mb-3">
-                    <textarea class="form-control" rows="5" name="content">{{board.content}}</textarea>
-                </div>
-                <button class="btn btn-primary form-control">수정 완료</button>
-            </form>
-        </div>
-    </div>
-</div>
+<h1>게시글 수정화면 + 폼 태그 완성</h1>
+<p>http://localhost:8080/board/4</p>
 
+<div>
+    <h2>제목 {{board.title}}</h2>
+    <p><h3>내용</h3> <br/>{{board.content}}</p>
+
+    <form action="http://localhost:8080/board/{{board.id}}/update" method="post">
+        <div>
+            <input type="text" name="title" placeholder="제목 입력">
+            <input type="text" name="content" placeholder="내용 입력">
+        </div>
+
+        <button> 수정 완료</button>
+
+    </form>
+
+
+</div>
 {{> layout/footer}}
