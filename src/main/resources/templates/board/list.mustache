@@ -1,14 +1,17 @@
 {{> layout/header}}
+<h1>게시글 목록 화면(내용출력)</h1>
 
-<div class="container p-5">
+<div>
+    <a href="http://localhost:8080/board/save">새 게시글 작성 </a>
+
     {{#boardList}}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h4 class="card-title">{{title}}</h4>
-                <a href="/board/{{id}}" class="btn btn-primary">상세보기</a>
-            </div>
-        </div>
+            <h2>{{title}}</h2>
+            <form action="http://localhost:8080/board/{{id}}" method="GET">
+                <button> 상세보기 </button>
+            </form>
     {{/boardList}}
+
 </div>
+
 
 {{> layout/footer}}
