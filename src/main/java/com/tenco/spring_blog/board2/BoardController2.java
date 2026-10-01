@@ -28,12 +28,13 @@ public class BoardController2 {
 
     // 게시글 목록 단건 조회(GET) http://localhost:8080/board/{id} , 존재하지 않는 id요청시 메인페이지로.
     @GetMapping("/board/{id}")
-    public String singleList(@PathVariable Long id , Model model) {
+    public String singleList(@PathVariable(name = "id") Long id , Model model) {
         Board2 board2 = boardNativeRepository2.findById(id);
 
         if(board2 == null) {
             return "redirect:/";
         }else {
+            model.addAttribute("board" , board2);
             return  "/board/detail";
         }
     }
@@ -64,7 +65,7 @@ public class BoardController2 {
     public String updatePostView(@PathVariable Long id , Model model) {
         Board2 board2 = boardNativeRepository2.findById(id);
         model.addAttribute("board" , board2);
-        return "/board/update";
+        return "/board/update-form";
     }
 
     @PostMapping("/board/{id}/update")
@@ -77,6 +78,13 @@ public class BoardController2 {
 
 
     // 게시글 삭제(Delete)   http://localhost:8080/board/{id}/delete
+    // 1. 삭제 요청 --> 메인화면으로 PRG
+    @PostMapping("/board/{id}/delete")
+    public String deletePost(@PathVariable(name = "id") Long id) {
+        boardNativeRepository2.deletePostById(id);
+
+        return "redirect:/";
+    }
 
 
 

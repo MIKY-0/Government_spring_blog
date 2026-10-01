@@ -1,6 +1,6 @@
 package com.tenco.spring_blog.board2;
 
-import com.tenco.spring_blog.board.Board;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
@@ -33,7 +33,7 @@ public class BoardNativeRepository2 {
                 where id = ?               
                 """;
 
-        Query query = em.createNativeQuery(sql);
+        Query query = em.createNativeQuery(sql , Board2.class);
         query.setParameter(1, id);
         try {
             return (Board2)query.getSingleResult();
@@ -60,6 +60,8 @@ public class BoardNativeRepository2 {
 
     }
 
+
+    // 게시글 수정.
     @Transactional
     public void updatePost(Long id , String title , String content) {
         String sql = """
@@ -69,10 +71,21 @@ public class BoardNativeRepository2 {
 
         Query query = em.createNativeQuery(sql);
 
-        query.setParameter(1, id);
-        query.setParameter(2, title);
-        query.setParameter(3, content);
+        query.setParameter(1, title);
+        query.setParameter(2, content);
+        query.setParameter(3, id);
 
+        query.executeUpdate();
+    }
+
+    public void deletePostById(Long id) {
+        String sql = """
+                delete from board_tb
+                where id = ?
+                """;
+
+        Query query = em.createNativeQuery(sql);
+        query.setParameter(1, id);
         query.executeUpdate();
     }
 }
