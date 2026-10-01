@@ -1,0 +1,26 @@
+server:
+  port: 5000
+
+logging:
+  level:
+    root: INFO
+    com.tenco.spring_blog: INFO
+
+spring:
+  #데이터베이스 연결(MySQL)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/myblog?serverTimezone=Asia/Seoul      # 팀장 또는 개발용 서버라면 localhost말고 그 pc주소.
+    username: root
+    password: root
+
+  # JPA 설정.
+  jpa:
+    hibernate:
+      # 운영환경에서는 create 사용 안함. 없는 테이블과 컬럼만 추가.
+      ddl-auto: update
+    # 실행되는 SQL을 콘솔에 출력합니다.
+    show-sql: true
+
+    # 추후 data.sql을 테이블 생성후에 실행.
+    defer-datasource-initialization: true
