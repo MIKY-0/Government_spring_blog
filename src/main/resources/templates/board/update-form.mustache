@@ -6,6 +6,7 @@
         <div class="card-body">
             <form action="/board/{{board.id}}/update" method="post">
                 <div class="mb-3">
+                            <!-- readonly : 수정불가. 읽기만 가능. 정해져있는 값으로만. -->
                     <input type="text" class="form-control" value="{{board.username}}" readonly>
                 </div>
                 <div class="mb-3">

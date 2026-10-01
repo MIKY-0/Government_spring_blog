@@ -22,7 +22,7 @@ spring:
   # JPA 설정.
   jpa:
     hibernate:
-      #시작할 때마다 테이블 새로 만듦. 기존 데이터는 다 지워짐.(개발용)
+      #시작할 때마다 테이블 새로 만듦(create). 기존 데이터는 다 지워짐.(개발용)
       ddl-auto: create
     # 실행되는 SQL을 콘솔에 출력합니다.
     show-sql: true
@@ -33,7 +33,8 @@ spring:
     # 추후 data.sql을 테이블 생성후에 실행.
     defer-datasource-initialization: true
 
-#  sql:
-#    init:
-#      data-locations:
-#        - classpath:db/data.sql
+  # 서버 시작시 이 파일 실행.  아래코드로 JPA가 Board에서 @Entity가 있기 때문에 그걸 테이블로 인식하고 테이블 자동생성.
+  sql:
+    init:
+      data-locations:
+        - classpath:db/data.sql # classpath --> resource폴더를 의미.
