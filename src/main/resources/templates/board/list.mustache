@@ -1,17 +1,11 @@
 {{> layout/header}}
 <h1>게시글 목록 화면(내용출력)</h1>
+<br/>
 
-<div>
-    <a href="http://localhost:8080/board/save">새 게시글 작성 </a>
-
-    {{#boardList}}
-            <h2>{{title}}</h2>
-            <form action="http://localhost:8080/board/{{id}}" method="GET">
-                <button> 상세보기 </button>
-            </form>
-    {{/boardList}}
-
-</div>
-
+<a href="http://localhost:8080/board/new"><button> 새 게시글 작성</button></a>
+{{#boardList}}
+    <h2>{{title}}</h2>
+    <a href="http://localhost:8080/board/{{id}}"> <button>상세보기</button></a>
+{{/boardList}}
 
 {{> layout/footer}}

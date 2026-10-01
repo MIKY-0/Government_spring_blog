@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-@Table(name = "board_tb")   @Entity     @Data
+@Data     @Table(name = "board_tb")     @Entity
 public class Board2 {
     @Id     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

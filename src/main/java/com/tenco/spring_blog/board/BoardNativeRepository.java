@@ -41,7 +41,7 @@
 //                """;
 //
 //        // Board.class가 없으면 Object클래스로 들어옴. Board객체로 받아야하므로 작성.
-          // 이 코드에서 바로 Board타입이 되는게 아니라 리턴될때 Board타입으로 지정됨.(지금은 JPA에게 Board로 바꿔달라고 하는것.)
+//        // 이 코드에서 바로 Board타입이 되는게 아니라 리턴될때 Board타입으로 지정됨.(지금은 JPA에게 Board로 바꿔달라고 하는것.)
 //        Query query = em.createNativeQuery(sql , Board.class); // 담아줄 데이터(?)가 없으니 createNativeQuery 사용.
 //
 //        // getResultList() : while(rs.next()) 알아서 동작함. 반환할 행이 다수이므로 getResultList().

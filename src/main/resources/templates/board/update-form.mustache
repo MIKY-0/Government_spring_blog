@@ -3,20 +3,14 @@
 <h1>게시글 수정화면 + 폼 태그 완성</h1>
 <p>http://localhost:8080/board/4</p>
 
-<div>
-    <h2>제목 {{board.title}}</h2>
-    <p><h3>내용</h3> <br/>{{board.content}}</p>
+<h1>현재 제목 : {{board.title}}</h1>
+<p>현재 내용 : {{board.content}}</p>
 
-    <form action="http://localhost:8080/board/{{board.id}}/update" method="post">
-        <div>
-            <input type="text" name="title" placeholder="제목 입력">
-            <input type="text" name="content" placeholder="내용 입력">
-        </div>
+<form action="http://localhost:8080/board/{{board.id}}/update" method="POST">
+    <input type="text" name="title" placeholder="제목 작성">
+    <input type="text" name="content" placeholder="내용 작성">
 
-        <button> 수정 완료</button>
+    <button>수정 완료</button>
+</form>
 
-    </form>
-
-
-</div>
 {{> layout/footer}}
