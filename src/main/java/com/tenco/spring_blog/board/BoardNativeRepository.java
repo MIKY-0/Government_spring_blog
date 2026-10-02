@@ -41,7 +41,7 @@ public class BoardNativeRepository {
                 """;
 
         // Board.class가 없으면 Object클래스로 들어옴. Board객체로 받아야하므로 작성.
-        Query query = em.createNativeQuery(sql , Board.class); // 담아줄 데이터(?)가 없으니 createNativeQuery 사용.
+        Query query = em.createNativeQuery(sql , Board.class); // 담아줄 데이터("?")가 없으니 createNativeQuery 사용.
 
         // getResultList() : while(rs.next()) 알아서 동작함. 반환할 행이 다수이므로 getResultList().
         return  query.getResultList();
