@@ -5,7 +5,8 @@
     {{! 수정, 삭제 버튼: 오른쪽 정렬 }}
     <div class="d-flex justify-content-end">
         <a href="/board/{{board.id}}/update" class="btn btn-warning me-1">수정</a>
-        <form action="/board/{{board.id}}/delete" method="post">
+        <form action="/board/{{board.id}}/delete" method="post" id="deleteForm">
+            <input type="hidden" id="boardId" value="{{board.id}}">
             <button class="btn btn-danger">삭제</button>
         </form>
     </div>
@@ -55,5 +56,38 @@
         </div>
     </div>
 </div>
+
+<script>
+    const deleteForm = document.getElementById("deleteForm")
+
+    deleteForm.addEventListener("submit" , async (e) =>{
+        e.preventDefault();
+
+        if(!confirm("정말 삭제?")) return;
+
+        const boardId = document.getElementById("boardId").value;
+
+        try {
+            const res = await fetch(`/api/boards/${boardId}` , {method : "DELETE"})
+
+            const msg = await res.text()
+
+            if(!res.ok){
+                alert(msg)
+                return;
+            }
+
+            alert(msg)
+
+            location.href = "/" // 성공시 메인화면으로 이동.
+
+        }catch (e) {
+            alert("문제 발생")
+        }
+
+
+    })
+
+</script>
 
 {{> layout/footer}}
