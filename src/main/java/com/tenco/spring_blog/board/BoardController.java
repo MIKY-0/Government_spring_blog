@@ -140,10 +140,4 @@
 //    }
 //
 //
-//    // TODO
-//    // 뼈대용 임시 게시글 한개(데이터베이스 연결시 삭제 예정)(D)
-////    private Map<String , Object> sampleBoard(Long id) {
-////        return Map.of("id", id , "title" , id + "번째 글" ,  "content" , "임시내용" ,
-////                "username" , "김민수");
-////    }
 //}
