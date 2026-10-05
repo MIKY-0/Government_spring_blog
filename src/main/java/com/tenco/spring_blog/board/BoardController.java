@@ -103,7 +103,7 @@ public class BoardController {
 
     // GET http://localhost:8080/board/1/update (수정 화면요청. 지금은 form태그로 던질거라서 restful 맞추지않고 사용.)
     @GetMapping("/board/{id}/update")
-    public String updateForm(@PathVariable Long id , Model model) {
+    public String updateForm(@PathVariable(name = "id") Long id , Model model) {
         // 샘플 데이터(D)
 //        model.addAttribute("board" , sampleBoard(id));
 
@@ -116,7 +116,7 @@ public class BoardController {
 
     // Post http://localhost:8080/board/1/update (게시글 실제 수정 기능 요청.)
     @PostMapping("/board/{id}/update")
-    public String update(@PathVariable Long id ,BoardRequest.UpdateDto reqDto) {
+    public String update(@PathVariable(name = "id") Long id ,BoardRequest.UpdateDto reqDto) {
 
         reqDto.validate(); // 유효성 실패 throw 던짐.
         boardPersistRepository.updateById(id , reqDto);
@@ -132,7 +132,7 @@ public class BoardController {
     // 게시글 삭제.
     // /board/{{board.id}}/delete
     @PostMapping("/board/{id}/delete")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable(name = "id") Long id) {
         boardPersistRepository.deleteById(id);
 
         // PRG 패턴 사용. -- 삭제완료시 메인페이지로.
