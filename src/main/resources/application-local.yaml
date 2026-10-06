@@ -1,3 +1,42 @@
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO      #스프링,라이브러리는 INFO이상만(INFO부터 ~ 끝까지)
+    com.tenco.spring_blog: DEBUG    #우리 코드는 DEBUG 이상까지 (처음부터 ~ DEBUG까지)
+
 spring:
-  profiles:
-    active: dev
+  #데이터베이스 연결(H2 메모리 DB사용)
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  # H2 콘솔 화면 켜기(http://localhost:8080/h2-console)
+  h2:
+    console:
+      enabled: true
+
+  # JPA 설정.
+  jpa:
+    hibernate:
+      #시작할 때마다 테이블 새로 만듦(create). 기존 데이터는 다 지워짐.(개발용)
+      ddl-auto: create
+    # 실행되는 SQL을 콘솔에 출력합니다.
+    show-sql: true
+    properties:
+      hibernate:
+        default_batch_fetch_size: 10
+        format_sql: true    #출력되는 SQL을 콘솔창에 줄바꿈하여 보기좋게 표시.
+
+    # 추후 data.sql을 테이블 생성후에 실행.
+    defer-datasource-initialization: true
+
+  # 서버 시작시 이 파일 실행.  아래코드로 JPA가 Board에서 @Entity가 있기 때문에 그걸 테이블로 인식하고 테이블 자동생성.
+  sql:
+    init:
+      mode: always  # MySQL 사용시 필수(always , never)
+      data-locations:
+        - classpath:db/data.sql # classpath --> resource폴더를 의미.

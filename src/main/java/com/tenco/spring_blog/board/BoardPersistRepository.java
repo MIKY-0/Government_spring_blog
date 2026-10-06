@@ -94,26 +94,19 @@ public class BoardPersistRepository {
     /*
      엔티티의 영속 상태 4가지.
      1. 비영속 상태 : 새로 생성된 객체. 영속성 컨텍스트와 전혀 무관. 객체는 있지만 JPA가 관리하지 않음.
-     2. 영속 상태 : 영속성 컨텍스트에게 관리되는 상태.
-     관리된다 : 이 객체를 계속 추적. 값이 바뀌면 트랜잭션 끝날 때 update로 관리 , 삭제 요청오면 delete로 관리 , 저장요청오면 insert로 관리.
-
-     3. 준영속 상태 : 영속성 컨텍스트에서 분리된 상태.
-4. 삭제 상태 : 삭제 예정 상태.(트랜잭션 commit 또는 flush 시 delete 쿼리 실행.) remove()호출 --> 삭제상태 --> flush/commit --> delete SQL 실행.
-     */
-    private void entityLifecycleEx() {
-        // 1. 비영속 상태.
         Board board = new Board("제목", "내용", "작성자");
 
-        // 2. 영속 상태.
-        em.persist(board);
+     2. 영속 상태 : 영속성 컨텍스트에게 관리되는 상태.
+     관리된다 : 이 객체를 계속 추적. 값이 바뀌면 트랜잭션 끝날 때 update로 관리 , 삭제 요청오면 delete로 관리 , 저장요청오면 insert로 관리.
+    em.persist(board);
 
-        // 3. 준영속 상태. : 영속성 컨텍스트에서 분리된 상태.(영속성이었다가 빠짐.)
-        em.detach(board);
+     3. 준영속 상태 : 영속성 컨텍스트에서 분리된 상태.
+     em.detach(board);
 
-        // 4. 삭제 예정 상태.
-        em.remove(board);
+     4. 삭제 상태 : 삭제 예정 상태.(트랜잭션 commit 또는 flush 시 delete 쿼리 실행.) remove()호출 --> 삭제상태 --> flush/commit --> delete SQL 실행.
+     em.remove(board);
+     */
 
-    }
 
 
     // 게시글 삭제.(영속성 컨텍스트를 활용한 안전한 삭제)

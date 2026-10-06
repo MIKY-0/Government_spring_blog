@@ -20,7 +20,6 @@ public class BoardController {
     @GetMapping({"/" , "/board/list"})
     public String list(Model model) {
 
-
         List<Board> boardList = boardPersistRepository.findAll();
         model.addAttribute("boardList" , boardList);
 
@@ -59,26 +58,6 @@ public class BoardController {
     // 현재 save-form.mustache에는 name속성이 있다. --> 이 name속성이 있어야 스프링부트가 데이터를 뽑아낼 수 있음.
     // form태그에 있는 값을 자바로 가져오는 것.
     // 이 name속성은 키값이므로 ? 뒤에오는 쿼리. --> RequestParam.
-//    @PostMapping({"/board/save"})
-//    public String save(@RequestParam("username") String username ,
-//                       @RequestParam("title") String title ,
-//                       @RequestParam("content") String content) {
-//        // form의 name속성과 매개변수명이 일치하면 자동으로 값이 바인딩됨.
-//        // name = "title" && @RequestParam("title") --> String title로 자동 매핑
-//
-//        // Slf4j의 로그 출력 방식.
-//        log.info("username : {}" , username);
-//        log.info("title : {}" , title);
-//        log.info("content : {}" , content);
-//
-//        // DAO 객체에게 데이터 전달 후 저장하는 일 위임. -- BoardNativeRepository
-//        boardNativeRepository.save(title , content , username);
-//
-//
-//        return "redirect:/"; // 저장후 메인 페이지로 이동. POST요청 후 메인페이지로 이동시킬때. PRG(Post-Redirect-Get)패턴.
-//        // Post로 요청받고 Redirect로 메인페이지로 Get요청하여 메인페이지로 이동.
-////        return "board/save-form";
-//    }
 
 
     @PostMapping("/board/save")
@@ -87,13 +66,14 @@ public class BoardController {
     public String save(BoardRequest.SaveDto reqDto) {
         // 1. Dto에서 Entity 타입으로 변환.
 
-        Board board = Board.builder()
-                .title(reqDto.getTitle())
-                .content(reqDto.getContent())
-                .username(reqDto.getUsername())
-                .build();
+        // TODO 수정 예정
+//        Board board = Board.builder()
+//                .title(reqDto.getTitle())
+//                .content(reqDto.getContent())
+//                .user(reqDto.getUsername())
+//                .build();
 
-        Board boardEntity = boardPersistRepository.save(board); // 이 시점은 영속상태.
+//        Board boardEntity = boardPersistRepository.save(board); // 이 시점은 영속상태.
 
         return "redirect:/";
 
@@ -138,12 +118,4 @@ public class BoardController {
         // PRG 패턴 사용. -- 삭제완료시 메인페이지로.
         return "redirect:/";
     }
-
-
-    // TODO
-    // 뼈대용 임시 게시글 한개(데이터베이스 연결시 삭제 예정)(D)
-//    private Map<String , Object> sampleBoard(Long id) {
-//        return Map.of("id", id , "title" , id + "번째 글" ,  "content" , "임시내용" ,
-//                "username" , "김민수");
-//    }
 }
