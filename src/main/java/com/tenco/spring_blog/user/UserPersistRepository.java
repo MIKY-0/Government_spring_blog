@@ -11,6 +11,27 @@ import org.springframework.stereotype.Repository;
 public class UserPersistRepository {
     private final EntityManager em;
 
+    // 회원 정보 조회 - 로그인 (사용자 이름 , 비밀번호 확인)
+    public User findByUsernameAndPassword(String username , String password) {
+        try {
+            String jpql = """
+                    select u from User u 
+                    where u.username = :username and u.password = :password
+                    """;
+
+            Query query = em.createQuery(jpql , User.class);
+            query.setParameter("username" , username);
+            query.setParameter("password" , password);
+
+            return (User) query.getSingleResult();
+
+        }catch (Exception e) {
+            // 일치하는 사용자가 없거나 에러 발생시 null 반환. 로그인 실패 의미.
+            return null;
+        }
+    }
+
+
     // 회원가입.
     @Transactional
     public User save(User user) {
@@ -37,7 +58,7 @@ public class UserPersistRepository {
                     setParameter("username" , username).getSingleResult();
 
         } catch (Exception e) {
-            throw new RuntimeException("존재하지 않는 유저명");
+            return null;
         }
 
     }

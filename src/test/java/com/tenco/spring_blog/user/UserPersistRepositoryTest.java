@@ -58,4 +58,73 @@ public class UserPersistRepositoryTest {
         // then : null 반환하는지
         Assertions.assertThat(notFoundUser).isNull();
     }
+
+    @Test
+    public void findByUsernameAndPassword_로그인_성공_테스트() {
+
+        // given : 회원가입된 사용자 정보
+        User user = User.builder()
+                .username("testUser")
+                .password("3456")
+                .email("test@email.com")
+                .build();
+
+        userPersistRepository.save(user);
+
+        // when : 사용자명과 비밀번호로 조회
+        User loginUser = userPersistRepository.findByUsernameAndPassword(
+                "testUser",
+                "3456"
+        );
+
+        // then : 조회된 사용자 검증
+        Assertions.assertThat(loginUser).isNotNull();
+        Assertions.assertThat(loginUser.getId()).isNotNull();
+        Assertions.assertThat(loginUser.getUsername()).isEqualTo("testUser");
+        Assertions.assertThat(loginUser.getPassword()).isEqualTo("3456");
+        Assertions.assertThat(loginUser.getEmail()).isEqualTo("test@email.com");
+
+        // 저장한 객체와 조회한 객체가 같은 엔티티인지 확인
+        Assertions.assertThat(loginUser).isSameAs(user);
+    }
+
+
+    @Test
+    public void findByUsernameAndPassword_비밀번호_불일치_테스트() {
+
+        // given : 회원가입된 사용자 정보
+        User user = User.builder()
+                .username("testUser")
+                .password("3456")
+                .email("test@email.com")
+                .build();
+
+        userPersistRepository.save(user);
+
+        // when : 잘못된 비밀번호로 로그인 시도
+        User loginUser = userPersistRepository.findByUsernameAndPassword(
+                "testUser",
+                "9999"
+        );
+
+        // then : 로그인 실패 -> null
+        Assertions.assertThat(loginUser).isNull();
+    }
+
+    @Test
+    public void findByUsernameAndPassword_존재하지않는_사용자_테스트() {
+
+        // given : DB에 존재하지 않는 사용자 정보
+        String username = "xxxxx";
+        String password = "3456";
+
+        // when : 존재하지 않는 사용자로 로그인 시도
+        User loginUser = userPersistRepository.findByUsernameAndPassword(
+                username,
+                password
+        );
+
+        // then : 로그인 실패 -> null
+        Assertions.assertThat(loginUser).isNull();
+    }
 }

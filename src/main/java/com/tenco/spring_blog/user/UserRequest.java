@@ -2,6 +2,7 @@ package com.tenco.spring_blog.user;
 
 import com.sun.nio.sctp.IllegalReceiveException;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
 public class UserRequest {
 
@@ -31,8 +32,19 @@ public class UserRequest {
                     .password(password)
                     .email(email)
                     .build();
+        }
+    }
+
+
+    @Data
+    public static class LoginDto {
+        private String username;
+        private String password;
+
+        public void validate() {
+            if(username == null || username.trim().isEmpty()) throw new IllegalReceiveException("사용자명은 필수입니다");
+            if(password == null || password.trim().isEmpty()) throw new IllegalReceiveException("패스워드는 필수입니다");
 
         }
-
     }
 }
