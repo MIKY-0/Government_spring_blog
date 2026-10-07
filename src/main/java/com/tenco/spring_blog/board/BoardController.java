@@ -1,5 +1,7 @@
 package com.tenco.spring_blog.board;
 
+import com.tenco.spring_blog.user.User;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -8,13 +10,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
 import java.util.List;
 
 @Controller     @Slf4j      @RequiredArgsConstructor
 public class BoardController {
     private final BoardNativeRepository boardNativeRepository;
     private final BoardPersistRepository boardPersistRepository;
+//    private final HttpSession session;  필드로 올려도 되지만 실행이 무거워짐. 웬만하면 메서드에 의존관계로 넣자.
 
     // GET http://localhost:8080/ , http://localhost:8080/board/list  둘 다 담당.
     @GetMapping({"/" , "/board/list"})
@@ -47,7 +52,13 @@ public class BoardController {
 
     // GET http://localhost:8080/board/save (화면요청.  화면만 뿌림.)
     @GetMapping("/board/save")
-    public String saveForm() {
+    public String saveForm(HttpSession session) {
+        // 1. 인증 검사 : 로그인 안된 사용자는 이 페이지에 접근 못하게 처리.
+        // getAttribute는 Object타입이므로 User로 변환.
+        User sessionUser = (User)session.getAttribute("sessionUser");
+
+        // sessionUser가 null --> 로그인 안된 사용자가 /board/save URL 요청시 로그인 화면으로 보냄.
+        if(sessionUser == null) return "redirect:/login";
 
         return "board/save-form";
     }
@@ -63,20 +74,22 @@ public class BoardController {
     @PostMapping("/board/save")
     // Spring 폼 데이터를 객체로 변환하는 과정.(데이터 바인딩 메커니즘)
     // 폼 데이터 바인딩 : Spring이 HTTP 요청 파라미터를 객체로 자동 변환.
-    public String save(BoardRequest.SaveDto reqDto) {
-        // 1. Dto에서 Entity 타입으로 변환.
+    public String save(BoardRequest.SaveDto saveDto , HttpSession session) {
+        // 1. 인증 검사.(로그인 사용자가 맞는지)
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
 
-        // TODO 수정 예정
-//        Board board = Board.builder()
-//                .title(reqDto.getTitle())
-//                .content(reqDto.getContent())
-//                .user(reqDto.getUsername())
-//                .build();
+        // 2. 유효성 검사. (로그인 사용자가 올바른 값을 입력했는지)
+        try {
+            saveDto.validate(); // 입력 데이터 검증.
+            Board board = saveDto.toEntity(sessionUser); // DTO에서 Entity 객체생성.
+            Board savedBoard = boardPersistRepository.save(board); // Board 저장.
 
-//        Board boardEntity = boardPersistRepository.save(board); // 이 시점은 영속상태.
+            return "redirect:/";
 
-        return "redirect:/";
-
+        } catch (Exception e) {
+            return "board/save-form"; // 검증 실패시
+        }
     }
 
     // =================================================================================================
@@ -112,10 +125,38 @@ public class BoardController {
     // 게시글 삭제.
     // /board/{{board.id}}/delete
     @PostMapping("/board/{id}/delete")
-    public String delete(@PathVariable Long id) {
-        boardPersistRepository.deleteById(id);
+    public String delete(@PathVariable Long id , HttpSession session , Model model , RedirectAttributes ra) {
+        // 1. 인증검사(로그인 여부 확인)
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
 
-        // PRG 패턴 사용. -- 삭제완료시 메인페이지로.
-        return "redirect:/";
+        // 2. 권한 확인 -- 로그인 했지만 내가 작성한 글인지 여부 확인.
+        // 2-1. 관리자 광고성 게시글을 다른사람이 삭제도 가능.
+       try {
+           // 2. 현재 로그인사용자가 삭제가능한 게시글 조회. (권한 체크를 위해)
+           Board boardEntity = boardPersistRepository.findById(id);
+
+           // 3. 권한 체크. 내가 작성한 게시글만 삭제가능하도록.
+           if(!boardEntity.isOwner(sessionUser.getId())) throw new RuntimeException("이 게시글에는 삭제 권한이 없습니다.");
+
+           // 4. 권한 확인 후 삭제 실행.
+           boardPersistRepository.deleteById(id);
+
+           // 5. 삭제 성공 후 메인 페이지로 PRG.
+           return "redirect:/";
+
+       } catch (Exception e) {
+           // 권한 없음 또는 기타오류 상황시 발생구간.
+           log.error("삭제 실패 : {}" , e.getMessage());
+
+           // ===============삭제 실패시 오류메시지 화면에 띄우기.===============
+
+           // 이 구간의 return은 redirect이기 때문에 페이지가 새로고침되어서 errormsg가 전달되어도 끊긴다.
+           // RedirectAttributes는 이번 요청이후 다시 한번 같은요청 보냄.
+        // model.addAttribute("errormsg" , e.getMessage());
+           ra.addFlashAttribute("errorMessage", e.getMessage());
+           return "redirect:/board/" + id ;
+       }
+
     }
 }

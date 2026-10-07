@@ -61,6 +61,11 @@ public class Board {
 
     }
 
+    // 게시글 수정 / 삭제 권한 체크용 편의 메서드.
+    public boolean isOwner(Long userId) {
+        return this.user.getId().equals(userId);
+    }
+
 
     // 시간을 포맷팅하는 메서드 추가.
     public String getTime() {
