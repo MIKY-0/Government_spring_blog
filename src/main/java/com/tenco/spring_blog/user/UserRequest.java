@@ -1,10 +1,7 @@
 package com.tenco.spring_blog.user;
 
-import com.sun.nio.sctp.IllegalReceiveException;
-import lombok.AllArgsConstructor;
+import com.tenco.spring_blog._core.error.Exception400;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 
 public class UserRequest {
 
@@ -15,7 +12,7 @@ public class UserRequest {
         private String password;
 
         public void validate() {
-            if(password == null || password.trim().isEmpty()) throw new IllegalArgumentException("패스워드는 필수입니다");
+            if(password == null || password.trim().isEmpty()) throw new Exception400("패스워드는 필수입니다");
         }
 
     }
@@ -30,12 +27,12 @@ public class UserRequest {
 
         // 회원가입시 데이터 검증 메서드.
         public void validate() {
-            if(username == null || username.trim().isEmpty()) throw new IllegalArgumentException("사용자명은 필수입니다");
-            if(password == null || password.trim().isEmpty()) throw new IllegalArgumentException("패스워드는 필수입니다");
-            if(email == null || email.trim().isEmpty()) throw new IllegalArgumentException("이메일은 필수입니다");
+            if(username == null || username.trim().isEmpty()) throw new Exception400("사용자명은 필수입니다");
+            if(password == null || password.trim().isEmpty()) throw new Exception400("패스워드는 필수입니다");
+            if(email == null || email.trim().isEmpty()) throw new Exception400("이메일은 필수입니다");
 
             // 간단하게 이메일 형식 검증.
-            if(!email.contains("@")) throw new IllegalArgumentException("올바른 이메일 형식이 아닙니다.");
+            if(!email.contains("@")) throw new Exception400("올바른 이메일 형식이 아닙니다.");
         }
 
 
@@ -57,8 +54,8 @@ public class UserRequest {
         private String password;
 
         public void validate() {
-            if(username == null || username.trim().isEmpty()) throw new IllegalArgumentException("사용자명은 필수입니다");
-            if(password == null || password.trim().isEmpty()) throw new IllegalArgumentException("패스워드는 필수입니다");
+            if(username == null || username.trim().isEmpty()) throw new Exception400("사용자명은 필수입니다");
+            if(password == null || password.trim().isEmpty()) throw new Exception400("패스워드는 필수입니다");
 
         }
     }

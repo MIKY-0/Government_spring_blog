@@ -1,19 +1,18 @@
 package com.tenco.spring_blog.controller;
 
-import com.sun.nio.sctp.IllegalReceiveException;
+import com.tenco.spring_blog._core.error.Exception400;
+import com.tenco.spring_blog._core.error.Exception404;
+import com.tenco.spring_blog._core.util.Define;
 import com.tenco.spring_blog.user.User;
 import com.tenco.spring_blog.user.UserPersistRepository;
 import com.tenco.spring_blog.user.UserRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.engine.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.Map;
 
 @Controller // IoC (제어의 역전) 싱글톤 패턴으로 관리됨.
 @RequiredArgsConstructor
@@ -28,20 +27,14 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public String joinAction(UserRequest.JoinDto req , Model model) {
+    public String joinAction(UserRequest.JoinDto req) {
 
-        log.info("==============회원가입 요청==============");
-        log.info("사용자명 : {}" , req.getUsername());
-        log.info("비밀번호 : {}" , req.getPassword());
-        log.info("이메일 : {}" , req.getEmail());
-
-        try {
             // 1. 유효성 검사.
             req.validate();
 
             // 2. 사용자명 중복체크.
             User existingUser = userPersistRepository.findByName(req.getUsername());
-            if(existingUser != null) throw new IllegalReceiveException("이미 존재하는 사용자명입니다");
+            if(existingUser != null) throw new Exception400("이미 존재하는 사용자명입니다");
 
             // 3. DTO를 엔티티로 변환.
             User user = req.toEntity();
@@ -51,12 +44,6 @@ public class UserController {
             User userEntity = userPersistRepository.save(user);
 
             return "redirect:/login";
-
-        } catch (Exception e) {
-            log.error("회원가입 실패 : {} " , e.getMessage());
-            model.addAttribute("errorMessage" , e.getMessage());
-            return "user/join-form";
-        }
 
     }
 
@@ -69,11 +56,8 @@ public class UserController {
 
     // 예외적으로 post요청.
     @PostMapping("/login")
-    public String loginAction(UserRequest.LoginDto req , HttpSession session , Model model) {
-        log.info("========로그인 요청========");
-        log.info("사용자명 : {}" , req.getUsername());
+    public String loginAction(UserRequest.LoginDto req , HttpSession session) {
 
-        try {
             // 1. 입력 데이터 검증.
             req.validate();
 
@@ -83,7 +67,7 @@ public class UserController {
             // 3. 로그인 성공 / 실패 처리.
             if(sessionUser == null) {
                 // 일치하는 사용자 없음.
-                throw new IllegalArgumentException("사용자명 또는 비밀번호가 올바르지 않습니다.");
+                throw new Exception400("사용자명 또는 비밀번호가 올바르지 않습니다.");
             }
 
             // mustache가 세션 값을 기본으로 읽지 않는 설정이 되어있음.
@@ -96,17 +80,11 @@ public class UserController {
             sessionUser.setPassword(null); // 패스워드는 로그인할 때만 필요하고 그 이후로는 계속 들고있을 필요 없음.
             // 패스워드까지 세션에 저장시켜놓으면 털릴수도있으므로 패스워드 사용했으면 null로 설정.
 
-            session.setAttribute("sessionUser" , sessionUser); // header.mustache의 키값.
-            log.info("로그인한 사용자 : {}" , sessionUser.getUsername());
+            session.setAttribute(Define.SESSION_USER , sessionUser); // header.mustache의 키값.
 
             // 5. 메인페이지로.
             return "redirect:/";
 
-        } catch (Exception e) {
-            // 로그인 실패시 에러 메세지와 함께 로그인 폼으로 돌려보내기.
-            model.addAttribute("errorMessage" , e.getMessage());
-            return "user/login-form";
-        }
     }
 
 
@@ -114,7 +92,7 @@ public class UserController {
     @GetMapping("/user/update")
     public String updateForm(Model model , HttpSession session){
         // 1. 인증 검사.
-        User sessionUser = (User) session.getAttribute("sessionUser");
+        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
         if(sessionUser == null) return "redirect:/login";
 
         User userEntity = userPersistRepository.findById(sessionUser.getId());
@@ -124,33 +102,25 @@ public class UserController {
     }
 
     @PostMapping("/user/update")
-    public String update(Model model , HttpSession session , UserRequest.UpdateDto req){
+    public String update(HttpSession session , UserRequest.UpdateDto req){
         // 1. 인증검사
-        User sessionUser = (User) session.getAttribute("sessionUser");
+        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
         if(sessionUser == null) return "redirect:/login";
 
         // 2. 권한 검사
         // 다른사람의 정보는 처음부터 수정할 수 없음.(대상이 실제로 있는지만 확인)
         User userEntity = userPersistRepository.findById(sessionUser.getId());
-        if(userEntity == null) throw new IllegalArgumentException("사용자를 찾을 수 없습니다");
+        if(userEntity == null) throw new Exception404("사용자를 찾을 수 없습니다");
 
-        try {
             // 3. 유효성 검사
             req.validate();
 
             // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
             User updatedUser = userPersistRepository.updateByUser(userEntity.getId() , req);
             updatedUser.setPassword(null);
-            session.setAttribute("sessionUser" , updatedUser);
+            session.setAttribute(Define.SESSION_USER , updatedUser);
 
             return "redirect:/";
-
-        }catch (Exception e) {
-            // 수정 실패시 기존 회원을 다시 화면에 보여줌.
-            model.addAttribute("user", userEntity);
-            model.addAttribute("errorMessage" , e.getMessage());
-            return "user/update-form";
-        }
 
     }
 
@@ -158,8 +128,6 @@ public class UserController {
     // GET http://localhost:8080/logout
     @GetMapping("/logout")
     public String logoutForm(HttpSession session){
-        log.info("====로그아웃 요청====");
-
         // 세션 무효화 처리.
         session.invalidate();
         return "redirect:/";
