@@ -1,6 +1,5 @@
 package com.tenco.spring_blog.user;
 
-import com.sun.nio.sctp.IllegalReceiveException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
@@ -73,7 +72,12 @@ public class UserPersistRepository {
 
     // 회원정보 수정.
     @Transactional
-    public void updateByUser(User user ,  UserRequest.UpdateDto req) {
-        user.update(req);
+    public User updateByUser(Long id , UserRequest.UpdateDto req) {
+        User userEntity = em.find(User.class, id);
+        if(userEntity == null) throw new RuntimeException("사용자를 찾을 수 없습니다");
+
+        userEntity.update(req.getPassword());
+
+        return userEntity;
     }
 }

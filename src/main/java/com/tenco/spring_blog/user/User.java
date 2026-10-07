@@ -2,10 +2,7 @@ package com.tenco.spring_blog.user;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -26,6 +23,7 @@ public class User {
     @CreationTimestamp  // 자동으로 now()
     private Timestamp createdAt;
 
+    @Setter
     private String password;
 
     @Builder // id와 createdAt은 자동으로 채워지므로 빌더에서 제외.
@@ -35,8 +33,8 @@ public class User {
         this.password = password;
     }
 
-    public void update(UserRequest.UpdateDto req) {
-        this.password = req.getPassword();
+    public void update(String password) { // password 하나만 있으니 dto말고 그냥 String으로 처리.
+        this.password = password;
     }
 
 }

@@ -64,7 +64,6 @@ public class UserController {
     // 로그인 처리. GET   http://localhost:8080/login
     @GetMapping("/login")
     public String loginForm(){
-
         return "user/login-form";
     }
 
@@ -84,7 +83,7 @@ public class UserController {
             // 3. 로그인 성공 / 실패 처리.
             if(sessionUser == null) {
                 // 일치하는 사용자 없음.
-                throw new IllegalReceiveException("사용자명 또는 비밀번호가 올바르지 않습니다.");
+                throw new IllegalArgumentException("사용자명 또는 비밀번호가 올바르지 않습니다.");
             }
 
             // mustache가 세션 값을 기본으로 읽지 않는 설정이 되어있음.
@@ -93,6 +92,10 @@ public class UserController {
             // 4. 로그인 성공 : 세션에 사용자 정보 저장.
             // 서버는 Http요청은 각각 독립적이므로 이전에 저장한 로그인 상태를 모름.
             // 이후 요청에서도 로그인 상태를 유지하기 위해 세션에 사용자 정보 저장.
+
+            sessionUser.setPassword(null); // 패스워드는 로그인할 때만 필요하고 그 이후로는 계속 들고있을 필요 없음.
+            // 패스워드까지 세션에 저장시켜놓으면 털릴수도있으므로 패스워드 사용했으면 null로 설정.
+
             session.setAttribute("sessionUser" , sessionUser); // header.mustache의 키값.
             log.info("로그인한 사용자 : {}" , sessionUser.getUsername());
 
@@ -127,24 +130,28 @@ public class UserController {
         if(sessionUser == null) return "redirect:/login";
 
         // 2. 권한 검사
+        // 다른사람의 정보는 처음부터 수정할 수 없음.(대상이 실제로 있는지만 확인)
         User userEntity = userPersistRepository.findById(sessionUser.getId());
+        if(userEntity == null) throw new IllegalArgumentException("사용자를 찾을 수 없습니다");
 
         try {
-            if(!userEntity.getId().equals(sessionUser.getId())) throw new RuntimeException("현재 로그인한 사용자와 일치안함.");
-            model.addAttribute("user", userEntity);
+            // 3. 유효성 검사
+            req.validate();
+
+            // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
+            User updatedUser = userPersistRepository.updateByUser(userEntity.getId() , req);
+            updatedUser.setPassword(null);
+            session.setAttribute("sessionUser" , updatedUser);
+
+            return "redirect:/";
+
         }catch (Exception e) {
+            // 수정 실패시 기존 회원을 다시 화면에 보여줌.
+            model.addAttribute("user", userEntity);
             model.addAttribute("errorMessage" , e.getMessage());
             return "user/update-form";
         }
 
-        // 3. 유효성 검사
-        req.validate();
-
-        // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
-        userPersistRepository.updateByUser(userEntity , req);
-
-        // 5. 성공 후 메인페이지로 리다이렉트.
-        return "redirect:/";
     }
 
 
