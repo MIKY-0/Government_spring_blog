@@ -109,11 +109,44 @@ public class UserController {
 
     // GET http://localhost:8080/user/update
     @GetMapping("/user/update")
-    public String updateForm(Model model){
-        model.addAttribute("user", Map.of("username", "김민수", "email", "a@naver.com"));
+    public String updateForm(Model model , HttpSession session){
+        // 1. 인증 검사.
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
+
+        User userEntity = userPersistRepository.findById(sessionUser.getId());
+        model.addAttribute("user" , userEntity);
 
         return "user/update-form";
     }
+
+    @PostMapping("/user/update")
+    public String update(Model model , HttpSession session , UserRequest.UpdateDto req){
+        // 1. 인증검사
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
+
+        // 2. 권한 검사
+        User userEntity = userPersistRepository.findById(sessionUser.getId());
+
+        try {
+            if(!userEntity.getId().equals(sessionUser.getId())) throw new RuntimeException("현재 로그인한 사용자와 일치안함.");
+            model.addAttribute("user", userEntity);
+        }catch (Exception e) {
+            model.addAttribute("errorMessage" , e.getMessage());
+            return "user/update-form";
+        }
+
+        // 3. 유효성 검사
+        req.validate();
+
+        // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
+        userPersistRepository.updateByUser(userEntity , req);
+
+        // 5. 성공 후 메인페이지로 리다이렉트.
+        return "redirect:/";
+    }
+
 
     // GET http://localhost:8080/logout
     @GetMapping("/logout")

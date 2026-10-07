@@ -96,27 +96,60 @@ public class BoardController {
 
     // GET http://localhost:8080/board/1/update (수정 화면요청. 지금은 form태그로 던질거라서 restful 맞추지않고 사용.)
     @GetMapping("/board/{id}/update")
-    public String updateForm(@PathVariable Long id , Model model) {
-        // 샘플 데이터(D)
-//        model.addAttribute("board" , sampleBoard(id));
+    public String updateForm(@PathVariable Long id , Model model , HttpSession session , RedirectAttributes ra) {
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
 
-        // 수정하기 화면 요청(먼저 조회부터)
-        Board board = boardPersistRepository.findById(id);
-        model.addAttribute("board", board);
-        return "board/update-form";
+        // 2. 권한 체크를 위한 게시글 조회.
+        Board boardEntity = boardPersistRepository.findById(id);
+
+        // 3. 권한 체크 : 본인이 작성한 게시글만 수정 가능.
+        try {
+            if(!boardEntity.isOwner(sessionUser.getId())) throw new RuntimeException("이 게시글에는 수정 권한이 없습니다.");
+
+            model.addAttribute("board", boardEntity);
+
+            return "board/update-form";
+
+        } catch (Exception e) {
+            // 권한 없음 또는 다른 오류 상황시 발생 구간.
+            log.error("삭제 실패 : {}" , e.getMessage());
+
+            // ===============수정 실패시 오류메시지 화면에 띄우기.===============
+            ra.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/board/" + id ;
+        }
     }
 
 
     // Post http://localhost:8080/board/1/update (게시글 실제 수정 기능 요청.)
     @PostMapping("/board/{id}/update")
-    public String update(@PathVariable Long id ,BoardRequest.UpdateDto reqDto) {
+    public String update(@PathVariable Long id ,BoardRequest.UpdateDto updateDto , HttpSession session , Model model) {
+        // 1. 인증검사.
+        User sessionUser = (User) session.getAttribute("sessionUser");
+        if(sessionUser == null) return "redirect:/login";
 
-        reqDto.validate(); // 유효성 실패 throw 던짐.
-        boardPersistRepository.updateById(id , reqDto);
+        // 2. 권한 검사.
+            Board boardEntity = boardPersistRepository.findById(id);
+        try {
+            // 유효성 실패 throw 던짐.
+            if(!boardEntity.isOwner(sessionUser.getId())) throw new RuntimeException("이 게시글에는 수정 권한이 없습니다.");
 
-        // 수정완료했으면 PRG 패턴으로 수정한 게시글페이지로 가서 다시 보여줌.  /board/{id}
+            // 3. 입력데이터 검증.
+            updateDto.validate();
 
-        return "redirect:/board/" + id; // 리다이렉트 수정성공한 해당 게시글 화면 이동.
+            // 4. 더티체킹을 통한 수정 실행.
+            boardPersistRepository.updateById(id , updateDto);
+
+            // 5. 수정완료 후 해당 게시글 상세보기로 이동.
+            return "redirect:/board/" + id;
+        }catch (Exception e) {
+            model.addAttribute( boardEntity);
+            model.addAttribute("errorMessage", e.getMessage());
+            // 내부에서 뷰 리졸브를 활용한 템플릿 파일 찾기.
+            return "board/update-form";
+        }
+
     }
 
     // ==================================================================================================

@@ -35,4 +35,8 @@ public class User {
         this.password = password;
     }
 
+    public void update(UserRequest.UpdateDto req) {
+        this.password = req.getPassword();
+    }
+
 }

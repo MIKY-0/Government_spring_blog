@@ -1,5 +1,6 @@
 package com.tenco.spring_blog.user;
 
+import com.sun.nio.sctp.IllegalReceiveException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
@@ -10,6 +11,13 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class UserPersistRepository {
     private final EntityManager em;
+
+    // 회원 정보 조회 : 수정 폼 용.
+    public User findById(Long id) {
+        User user = em.find(User.class, id);
+        if(user == null) throw new RuntimeException("사용자를 찾을 수 없습니다");
+        return user;
+    }
 
     // 회원 정보 조회 - 로그인 (사용자 이름 , 비밀번호 확인)
     public User findByUsernameAndPassword(String username , String password) {
@@ -60,6 +68,12 @@ public class UserPersistRepository {
         } catch (Exception e) {
             return null;
         }
+    }
 
+
+    // 회원정보 수정.
+    @Transactional
+    public void updateByUser(User user ,  UserRequest.UpdateDto req) {
+        user.update(req);
     }
 }
