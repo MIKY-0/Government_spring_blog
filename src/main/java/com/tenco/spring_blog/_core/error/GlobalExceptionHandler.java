@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
 //    }
 
     @ExceptionHandler(Exception403.class)
-    @ResponseBody
+    @ResponseBody // return을 http 응답바디에 넣음. 이 return과 Http설정 등을 보고 Spring이 content-type을 text 할지 , html 할지 정함.
     @ResponseStatus(HttpStatus.FORBIDDEN) // 상태코드 403 지정(없으면 200으로 나감)
     public String ex403(Exception403 e , HttpServletRequest req ) {
         log.warn("==== 403 Forbidden 에러 발생 ====");
