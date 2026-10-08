@@ -43,7 +43,7 @@ public class Board {
         this.user = user;
     }
 
-    // 자신의 상태값을 변경하는 메서드 추가. (영속성 엔티티를 수정하는 메서드)
+    // 자신의 상태값을 자신이 직접 변경하는 메서드 추가. (영속성 엔티티를 수정하는 메서드)
     public void update(BoardRequest.UpdateDto updateDto) {
         // 비즈니스 규칙 검증.
          updateDto.validate();
@@ -58,14 +58,12 @@ public class Board {
          2. 필드값 변경시 현재시점 상태와 스냅샷 비교.
          3. 트랜잭션 커밋 시점에 변경된 필드만 update 쿼리를 자동 실행.
          */
-
     }
 
     // 게시글 수정 / 삭제 권한 체크용 편의 메서드.
     public boolean isOwner(Long userId) {
         return this.user.getId().equals(userId);
     }
-
 
     // 시간을 포맷팅하는 메서드 추가.
     public String getTime() {

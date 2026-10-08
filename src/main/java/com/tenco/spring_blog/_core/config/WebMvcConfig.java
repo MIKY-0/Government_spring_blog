@@ -1,5 +1,6 @@
 package com.tenco.spring_blog._core.config;
 
+import com.tenco.spring_blog._core.interceptor.IpBlockInterceptor;
 import com.tenco.spring_blog._core.interceptor.LoginInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +12,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
     private final LoginInterceptor loginInterceptor;
+    private final IpBlockInterceptor ipBlockInterceptor;
 
     @Override
     // 내가 정의한 인터셉터를 설정 클래스로 등록할 수 있음.
     public void addInterceptors(InterceptorRegistry registry) {
         // LoginInterceptor를 시스템에 등록.
+
+        registry.addInterceptor(ipBlockInterceptor)
+                        .addPathPatterns("/");
+
 
         registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/user/**" , "/board/**") // 인터셉터가 동작할 때 URL 패턴 지정. /user , /board 아래 모든 경로 가능.
