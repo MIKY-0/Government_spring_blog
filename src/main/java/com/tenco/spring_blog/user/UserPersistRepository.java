@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.h2.engine.UserBuilder;
 import org.springframework.stereotype.Repository;
 
 @Repository // IoC + 싱글톤
@@ -80,4 +81,5 @@ public class UserPersistRepository {
 
         return userEntity;
     }
+
 }

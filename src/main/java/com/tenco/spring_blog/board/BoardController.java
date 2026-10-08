@@ -22,6 +22,7 @@ public class BoardController {
 //    private final HttpSession session;  필드로 올려도 되지만 실행이 무거워짐. 웬만하면 메서드에 의존관계로 넣자.
 
     // GET http://localhost:8080/ , http://localhost:8080/board/list  둘 다 담당.
+    // excludePathPatterns로 제외되어 로그인 접근 가능.
     @GetMapping({"/" , "/board/list"})
     public String list(Model model) {
 
@@ -37,7 +38,6 @@ public class BoardController {
     public String detail(@PathVariable(name="id") Long id , Model model) {
 
         Board boardEntity = boardPersistRepository.findById(id);
-//        Board boardEntity = boardPersistRepository.findByIdWithJPQL(id);
 
         if(boardEntity == null) {
             // 추후 404 에러 페이지를 만들어서 처리할 예정.
@@ -53,12 +53,13 @@ public class BoardController {
     // GET http://localhost:8080/board/save (화면요청.  화면만 뿌림.)
     @GetMapping("/board/save")
     public String saveForm(HttpSession session) {
+        // 인터셉터에서 인증검사 진행됨.
         // 1. 인증 검사 : 로그인 안된 사용자는 이 페이지에 접근 못하게 처리.
         // getAttribute는 Object타입이므로 User로 변환.
-        User sessionUser = (User)session.getAttribute(Define.SESSION_USER);
+//        User sessionUser = (User)session.getAttribute(Define.SESSION_USER);
 
         // sessionUser가 null --> 로그인 안된 사용자가 /board/save URL 요청시 로그인 화면으로 보냄.
-        if(sessionUser == null) return "redirect:/login";
+//        if(sessionUser == null) return "redirect:/login";
 
         return "board/save-form";
     }
@@ -77,7 +78,7 @@ public class BoardController {
     public String save(BoardRequest.SaveDto saveDto , HttpSession session) {
         // 1. 인증 검사.(로그인 사용자가 맞는지)
         User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if(sessionUser == null) return "redirect:/login";
+//        if(sessionUser == null) return "redirect:/login";
 
         // 2. 유효성 검사. (로그인 사용자가 올바른 값을 입력했는지)
 
@@ -95,7 +96,7 @@ public class BoardController {
     @GetMapping("/board/{id}/update")
     public String updateForm(@PathVariable Long id , Model model , HttpSession session , RedirectAttributes ra) {
         User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if(sessionUser == null) return "redirect:/login";
+//        if(sessionUser == null) return "redirect:/login";
 
         // 2. 권한 체크를 위한 게시글 조회.
         Board boardEntity = boardPersistRepository.findById(id);
@@ -115,7 +116,7 @@ public class BoardController {
     public String update(@PathVariable Long id ,BoardRequest.UpdateDto updateDto , HttpSession session) {
         // 1. 인증검사.
         User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        if(sessionUser == null) return "redirect:/login";
+//        if(sessionUser == null) return "redirect:/login";
 
         // 2. 권한 검사.
             Board boardEntity = boardPersistRepository.findById(id);
