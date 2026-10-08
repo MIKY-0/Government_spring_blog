@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
-@Import(BoardPersistRepository.class)   @DataJpaTest
+@Import(BoardJpaRepository.class)   @DataJpaTest
 public class BoardPersistRepositoryTest {
     @Autowired
-    private BoardPersistRepository boardPersistRepository;
+    private BoardJpaRepository boardJpaRepository;
 
     @Test
     public void save_연관관계_포함_게시글_저장_테스트() {
@@ -24,7 +24,7 @@ public class BoardPersistRepositoryTest {
                 .build();
 
         // when
-        Board savedBoard = boardPersistRepository.save(board);
+        Board savedBoard = boardJpaRepository.save(board);
 
         // then
         // 1. 자동 생성된 ID값 확인.
@@ -64,7 +64,7 @@ public class BoardPersistRepositoryTest {
                 .build();
 
         // 3. 게시글 저장
-        Board savedBoard = boardPersistRepository.save(board);
+        Board savedBoard = boardJpaRepository.save(board);
 
         // 4. 저장된 게시글의 기본키(ID) 가져오기
         Long boardId = savedBoard.getId();
@@ -72,11 +72,11 @@ public class BoardPersistRepositoryTest {
 
         // when
         // 5. 게시글 삭제
-        boardPersistRepository.deleteById(boardId);
+        boardJpaRepository.deleteById(boardId);
 
         // then
         // 6. 삭제된 게시글을 다시 조회
-        Board deletedBoard = boardPersistRepository.findById(boardId);
+        Board deletedBoard = boardJpaRepository.findById(boardId);
 
         // 7. 삭제된 게시글은 조회되지 않아야 함
         Assertions.assertThat(deletedBoard).isNull();
