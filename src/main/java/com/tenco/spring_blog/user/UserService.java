@@ -77,7 +77,7 @@ public class UserService {
      */
     @Transactional
     public User updateById(Long id , UserRequest.UpdateDto updateDto) {
-        User user = findById(id);
+        User user = findById(id); // get매핑에서 findById했는데 또 하는 이유 : post매핑에서도 영속상태로 가져오려고.
         user.update(updateDto.getPassword());
 
         return user;
