@@ -28,10 +28,10 @@ public class Board {
     private String content;
     // private String username;
 
-    @ManyToOne(fetch = FetchType.EAGER) // N : 1
     // LAZY전략 , EAGER전략
     // LAZY 전략 : 게시글을 조회 할 때 사용자는 바로 조회하지 않고 실제로 사용할 때 그 때 한번 더 조회.
     // EAGER 전략 : 필요 여부 상관없이 미리 User 가져옴. (성능 부하)
+    @ManyToOne(fetch = FetchType.LAZY) // N : 1
     @JoinColumn(name = "user_id") // board_tb에 만들어질 외래키 컬럼 이름 설정.
     private User user;
 

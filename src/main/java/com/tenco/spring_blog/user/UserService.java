@@ -32,6 +32,10 @@ public class UserService {
             log.warn("회원가입 실패 - 중복된 사용자명 : {}" , joinDto.getUsername());
             throw new Exception400("이미 존재하는 사용자명입니다");
         });
+
+        // 이메일 중복 체크.
+        userJpaRepository.findByEmail(joinDto.getEmail()).ifPresent(u -> {throw new Exception400("이미 존재하는 이메일입니다.");});
+
         User savedUser = userJpaRepository.save(joinDto.toEntity());
 
         log.info("회원 가입 서비스  완료 - 사용자명 : {} , Id : {}" , joinDto.getUsername() , joinDto.getEmail());
