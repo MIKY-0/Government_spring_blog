@@ -44,11 +44,10 @@ public class UserController {
     public String loginAction(UserRequest.LoginDto req , HttpSession session) {
             // 1. 입력 데이터 검증.
             req.validate();
-            User user = userService.login(req);
+            SessionUserDto sessionUserDto = userService.login(req);
 
-            user.setPassword(null); // 패스워드는 로그인할 때만 필요하고 그 이후로는 계속 들고있을 필요 없음.
             // 패스워드까지 세션에 저장시켜놓으면 털릴수도있으므로 패스워드 사용했으면 null로 설정.
-            session.setAttribute(Define.SESSION_USER , user); // header.mustache의 키값.
+            session.setAttribute(Define.SESSION_USER , sessionUserDto); // header.mustache의 키값.
 
             return "redirect:/";
     }
@@ -58,10 +57,9 @@ public class UserController {
     @GetMapping("/user/update")
     public String updateForm(Model model , HttpSession session){
         // 1. 인증 검사.
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-
-        User userEntity = userService.findById(sessionUser.getId());
-        model.addAttribute("user" , userEntity);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        UserResponse.updateFormDto userUpdateFormDto = userService.findUpdateForm(sessionUserDto.getId());
+        model.addAttribute("user" , userUpdateFormDto);
 
         return "user/update-form";
     }
@@ -70,12 +68,11 @@ public class UserController {
     public String update(HttpSession session , UserRequest.UpdateDto updateDto){
             updateDto.validate();
 
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
 
             // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
-            User updatedUser = userService.updateById(sessionUser.getId() , updateDto);
-            updatedUser.setPassword(null);
-            session.setAttribute(Define.SESSION_USER , updatedUser);
+            SessionUserDto updateSessionUserDto = userService.updateById(sessionUserDto.getId() , updateDto);
+            session.setAttribute(Define.SESSION_USER , updateSessionUserDto);
 
             return "redirect:/";
     }

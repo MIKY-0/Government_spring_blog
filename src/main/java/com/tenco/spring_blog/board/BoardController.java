@@ -2,6 +2,7 @@ package com.tenco.spring_blog.board;
 
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.util.Define;
+import com.tenco.spring_blog.user.SessionUserDto;
 import com.tenco.spring_blog.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class BoardController {
     // excludePathPatterns로 제외되어 로그인 접근 가능.
     @GetMapping({"/" , "/board/list"})
     public String list(Model model) {
-        List<Board> boardList = boardService.findAll();
+        List<BoardResponse.ListDto> boardList = boardService.findAll();
         model.addAttribute("boardList" , boardList);
 
         return "board/list";
@@ -34,9 +35,9 @@ public class BoardController {
     // GET http://localhost:8080/board/3
     @GetMapping("/board/{id}")
     public String detail(@PathVariable(name="id") Long id , Model model) {
-        Board board = boardService.findById(id);
+        BoardResponse.DetailDto detailDto = boardService.findById(id);
 
-        model.addAttribute("board", board);
+        model.addAttribute("board", detailDto);
 
         return "board/detail";
     }
@@ -69,25 +70,22 @@ public class BoardController {
             saveDto.validate(); // 입력 데이터 검증.
 
         // 2. 인증 검사.(로그인 사용자가 맞는지)
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-
-            Board savedBoard = boardService.save(saveDto , sessionUser); // Board 저장.
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+            Board savedBoard = boardService.save(saveDto , sessionUserDto); // Board 저장.
 
             return "redirect:/";
     }
 
 
-    // TODO 인가처리를 서비스로 이동 예정.
     // GET http://localhost:8080/board/1/update (수정 화면요청. 지금은 form태그로 던질거라서 restful 맞추지않고 사용.)
     @GetMapping("/board/{id}/update")
-    public String updateForm(@PathVariable Long id , Model model , HttpSession session , RedirectAttributes ra) {
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
+    public String updateForm(@PathVariable Long id , Model model , HttpSession session) {
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
 
         // 2. 권한 체크를 위한 게시글 조회.
-        Board boardEntity = boardService.findById(id);
-        if (!boardEntity.isOwner(sessionUser.getId())) throw new Exception403("수정할 권한이 없습니다.");
+        BoardResponse.UpdateFormDto updateFormDto = boardService.findByIdAndUpdateForm(id , sessionUserDto.getId());
 
-            model.addAttribute("board", boardEntity);
+            model.addAttribute("board", updateFormDto);
 
             return "board/update-form";
     }
@@ -97,8 +95,8 @@ public class BoardController {
     @PostMapping("/board/{id}/update")
     public String update(@PathVariable Long id ,BoardRequest.UpdateDto updateDto , HttpSession session) {
         updateDto.validate();
-        User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-        boardService.updateById(id , updateDto , sessionUser);
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        boardService.updateById(id , updateDto , sessionUserDto);
 
         return "redirect:/board/" + id;
     }
@@ -108,8 +106,8 @@ public class BoardController {
     // /board/{{board.id}}/delete
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Long id , HttpSession session) throws Exception403{
-            User sessionUser = (User) session.getAttribute(Define.SESSION_USER);
-            boardService.deleteById(id , sessionUser);
+            SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+            boardService.deleteById(id , sessionUserDto);
 
            return "redirect:/";
     }

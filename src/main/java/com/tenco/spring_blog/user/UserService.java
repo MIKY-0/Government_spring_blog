@@ -25,7 +25,7 @@ public class UserService {
      * @return : 저장된 사용자 정보
      */
     @Transactional
-    public User join(UserRequest.JoinDto joinDto){
+    public UserResponse.JoinDto join(UserRequest.JoinDto joinDto){
         log.info("회원 가입 서비스 시작 - 사용자명 : {}" , joinDto.getUsername());
 
         userJpaRepository.findByUsername(joinDto.getUsername()).ifPresent(user -> {
@@ -40,7 +40,7 @@ public class UserService {
 
         log.info("회원 가입 서비스  완료 - 사용자명 : {} , Id : {}" , joinDto.getUsername() , joinDto.getEmail());
 
-        return savedUser;
+        return new UserResponse.JoinDto(savedUser);
     }
 
     // 로그인.
@@ -49,7 +49,7 @@ public class UserService {
      * @param loginDto : 로그인 정보
      * @return : 로그인된 사용자 정보
      */
-    public User login(UserRequest.LoginDto loginDto) {
+    public SessionUserDto login(UserRequest.LoginDto loginDto) {
         log.info("로그인 서비스 시작 - 사용자명 : {}" , loginDto.getUsername());
             User user = userJpaRepository.findByUsernameAndPassword(loginDto.getUsername() , loginDto.getPassword())
                     .orElseThrow( () -> {
@@ -59,31 +59,46 @@ public class UserService {
 
         log.info("로그인 성공 - 사용자명 : {}" , loginDto.getUsername());
 
-        return user;
+        return new SessionUserDto(user);
     }
 
+
     /**
-     * 사용자 정보 조회
-     * @param id : 사용자 PK
-     * @return : 조회한 사용자 정보
+     * 회원 정보 수정 화면 : 화면에 필요한 값만 담는 DTO 반환.
+     * @param userId
+     * @return
      */
-    public User findById(Long id) {
-        log.info("사용자 정보 조회 - ID : {}" , id);
-        return userJpaRepository.findById(id).orElseThrow(() -> new Exception404("일치하는 사용자가 없습니다"));
-    }
+     public UserResponse.updateFormDto findUpdateForm(Long userId) {
+        User user = findById(userId);
+         return new UserResponse.updateFormDto(user);
+     }
+
 
     // 회원정보 수정
     /**
      * 회원 정보 수정 처리 (더티 체킹 활용)
+     * 세션 동기화용 DTO 반환.
       * @param id : 사용자 PK
      * @param updateDto : 수정할 정보
      * @return : 수정된 사용자 정보
      */
     @Transactional
-    public User updateById(Long id , UserRequest.UpdateDto updateDto) {
+    public SessionUserDto updateById(Long id , UserRequest.UpdateDto updateDto) {
         User user = findById(id); // get매핑에서 findById했는데 또 하는 이유 : post매핑에서도 영속상태로 가져오려고.
         user.update(updateDto.getPassword());
 
-        return user;
+        return new SessionUserDto(user);
     }
+
+
+    /**
+     * 사용자 정보 조회.  서비스 안에서만 쓰는 조회용 메서드(캡슐화)
+     * @param id : 사용자 PK
+     * @return : 조회한 사용자 정보
+     */
+    private User findById(Long id) {
+        log.info("사용자 정보 조회 - ID : {}" , id);
+        return userJpaRepository.findById(id).orElseThrow(() -> new Exception404("일치하는 사용자가 없습니다"));
+    }
+
 }
