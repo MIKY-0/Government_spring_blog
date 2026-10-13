@@ -16,6 +16,7 @@ spring:
 
   # JPA 설정.
   jpa:
+    open-in-view: false
     hibernate:
       properties:
         hibernate:

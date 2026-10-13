@@ -21,6 +21,7 @@ spring:
 
   # JPA 설정.
   jpa:
+    open-in-view: false
     hibernate:
       #시작할 때마다 테이블 새로 만듦(create). 기존 데이터는 다 지워짐.(개발용)
       ddl-auto: create
