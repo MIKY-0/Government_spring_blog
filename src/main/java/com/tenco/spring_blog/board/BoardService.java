@@ -3,6 +3,9 @@ package com.tenco.spring_blog.board;
 import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.error.Exception404;
+import com.tenco.spring_blog.reply.Reply;
+import com.tenco.spring_blog.reply.ReplyJpaRepository;
+import com.tenco.spring_blog.reply.ReplyResponse;
 import com.tenco.spring_blog.user.SessionUserDto;
 import com.tenco.spring_blog.user.User;
 import com.tenco.spring_blog.user.UserJpaRepository;
@@ -24,6 +27,7 @@ Board 관련 비즈니스 로직을 처리하는 service 계층.
 public class BoardService {
     private final BoardJpaRepository boardJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final ReplyJpaRepository replyJpaRepository;
 
     /**
      * 게시글 저장
@@ -124,7 +128,11 @@ public class BoardService {
         Board board = boardJpaRepository.findByIdJoinUser(id)
                 .orElseThrow(() -> new Exception404("해당 게시글은 존재하지 않습니다."));
         if(!board.isOwner(sessionUser.getId())) throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다.");
+
+        // 게시글삭제 , 댓글삭제를 하나의 트랜잭션 안에서.
         boardJpaRepository.deleteById(id);
+        replyJpaRepository.deleteByBoardId(id);
+
         log.info("게시글 삭제 완료");
     }
 

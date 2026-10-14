@@ -28,4 +28,5 @@ public interface BoardJpaRepository extends JpaRepository<Board , Long> {
 
     @Query("select b from Board b join fetch b.user u order by b.id desc")
     List<Board> findAllJoinUser();
+
 }

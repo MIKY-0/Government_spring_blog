@@ -4,6 +4,7 @@ import com.tenco.spring_blog._core.util.Define;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -31,6 +32,7 @@ public class GlobalExceptionHandler {
         return "err/400";
     }
 
+    // redirect 페이지로 이동시키려면 ex401로.
     @ExceptionHandler(Exception401.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String ex401(Exception401 e , HttpServletRequest req , RedirectAttributes rttr) {
@@ -43,6 +45,28 @@ public class GlobalExceptionHandler {
 
         return "redirect:/login";
     }
+
+
+    // redirect가 아닌 로그인페이지로 바로 보내려면 exUnauthorized로.
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public String exUnauthorized(UnauthorizedException e , HttpServletRequest req) {
+        log.warn("==== 401(Data 반환) Unauthorized 에러 발생 ====");
+        log.warn("요청 URL : {}" , req.getRequestURL());
+        log.warn("인증 오류 : {}" , e.getMessage());
+        log.warn("예외 클래스 : {}" , e.getClass().getSimpleName());
+
+        String msg = e.getMessage().replace("'" , "\\'"); // 따옴표 깨짐 방지.
+
+        return """
+                <script>
+                    alert('%s');
+                    location.href = "/login";
+                </script>
+                """.formatted(msg);
+    }
+
 
 //    @ExceptionHandler(Exception403.class)
 //    public String ex403(Exception403 e , HttpServletRequest req) {
@@ -116,6 +140,20 @@ public class GlobalExceptionHandler {
 
         return "err/500";
     }
+
+
+    // 데이터베이스 제약조건 위반 (FK , Unique 중복)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT) // 409 : 현재 데이터 상태와 충돌.
+    public String exDataIntegrityViolationException(DataIntegrityViolationException e , HttpServletRequest req , Model model) {
+        log.warn("==== 데이터베이스 제약조건 위반 ====");
+        log.error("요청 URL : {}" , req.getRequestURL());
+        log.error("원인 : {}" , e.getMostSpecificCause().getMessage());  // 상세 원인(SQL , 제약조건 이름)은 개발자용 로그에만 남김.
+        model.addAttribute("msg", "시스템 오류 발생. 관리자에게 문의해주세요");
+
+        return "err/500";
+    }
+
 
 
     // 오류 화면에서도 헤더의 로그인 메뉴가 보이도록 sessionUserDto를 model에 추가.

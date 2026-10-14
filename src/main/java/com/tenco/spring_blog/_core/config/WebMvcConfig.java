@@ -26,13 +26,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
 
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/user/**" , "/board/**") // 인터셉터가 동작할 때 URL 패턴 지정. /user , /board 아래 모든 경로 가능.
+                .addPathPatterns("/user/**" , "/board/**" , "/reply/**") // 인터셉터가 동작할 때 URL 패턴 지정. /user , /board 아래 모든 경로 가능.
                 .excludePathPatterns("/board/list" , "/board/{id:\\d+}");  // 인터셉터에서 제외할 URL 패턴 지정. \\d+는 정규표현식.
         // 1개 이상의 숫자 의미. 예) /board/1 , /board/123 (상세보기)은 로그인 없어도 접근가능.
         // /board/1/update처럼 뒤에 (/update같이)경로가 더 붙으면 제외대상에서 빠짐.
 
         registry.addInterceptor(sessionUserModelInterceptor)
                 .addPathPatterns("/**"); // 모든 경로.
+
 
 
     }

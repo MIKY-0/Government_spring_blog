@@ -2,6 +2,9 @@ package com.tenco.spring_blog.board;
 
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.util.Define;
+import com.tenco.spring_blog.reply.ReplyRequest;
+import com.tenco.spring_blog.reply.ReplyResponse;
+import com.tenco.spring_blog.reply.ReplyService;
 import com.tenco.spring_blog.user.SessionUserDto;
 import com.tenco.spring_blog.user.User;
 import jakarta.servlet.http.HttpSession;
@@ -19,6 +22,7 @@ import java.util.List;
 @Controller     @Slf4j      @RequiredArgsConstructor
 public class BoardController {
     private final BoardService boardService;
+    private final ReplyService replyService;
 //    private final HttpSession session;  필드로 올려도 되지만 실행이 무거워짐. 웬만하면 메서드에 의존관계로 넣자.
 
     // GET http://localhost:8080/ , http://localhost:8080/board/list  둘 다 담당.
@@ -42,6 +46,13 @@ public class BoardController {
         // 로그인 + 작성자 본인일 때만 수정 , 삭제 버튼 표시.
         boolean isOwner = sessionUserDto != null && detailDto.getUserId().equals(sessionUserDto.getId());
         model.addAttribute("isOwner" , isOwner);
+
+        // 댓글 목록 조회.
+        // sessionUserDto.getId()를 바로 넣으면 sessionUserDto가 null일때 점 연산자때문에 에러. 방어적코드 작성.
+        Long sessionUserId = (sessionUserDto == null) ? null : sessionUserDto.getId();
+        List< ReplyResponse.ListDto> replyList = replyService.findAllByBoardId(id , sessionUserId);
+        model.addAttribute("replyList" , replyList);
+
         return "board/detail";
     }
 
