@@ -10,11 +10,15 @@ import com.tenco.spring_blog.user.User;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.buf.Utf8Encoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Controller     @Slf4j      @RequiredArgsConstructor
@@ -28,10 +32,17 @@ public class BoardController {
     @GetMapping({"/" , "/board/list"})
     public String list(@RequestParam(name = "page" , defaultValue = "1") int page ,
                        @RequestParam(name = "size" , defaultValue = "3") int size ,
+                       @RequestParam(name = "keyword" , defaultValue = "") String keyword ,
                        Model model) {
-        BoardResponse.PageDto pageDto = boardService.findAllPage(page, size);
-        model.addAttribute("boardPage" , pageDto);
+        BoardResponse.PageDto pageDto = boardService.findAllPage(page, size , keyword);
 
+
+        model.addAttribute("boardPage" , pageDto);
+        model.addAttribute("keyword" , keyword);
+        model.addAttribute("isSearch" , !keyword.isBlank());
+
+        // 페이지 링크는 직접 URL 인코딩 필요.
+        model.addAttribute("keywordParam" , URLEncoder.encode(keyword , StandardCharsets.UTF_8));
         return "board/list";
     }
 

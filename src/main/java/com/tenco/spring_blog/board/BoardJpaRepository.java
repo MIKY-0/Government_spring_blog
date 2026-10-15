@@ -40,4 +40,17 @@ public interface BoardJpaRepository extends JpaRepository<Board , Long> {
     Page<Board> findAllJoinUser(Pageable pageable);
 
 
+
+    @Query(value = """
+            select b from Board b join fetch b.user u 
+            where b.title like concat('%' , :keyword , '%') 
+            or  b.content like concat('%' , :keyword , '%')                      
+            """,
+            countQuery = """
+                select count(b) from Board b
+                where b.title like concat('%' , :keyword , '%') 
+                or  b.content like concat('%' , :keyword , '%')
+                """ )
+    Page<Board> findAllKeywordJoinUser(@Param("keyword") String keyword , Pageable pageable);
+
 }

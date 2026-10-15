@@ -65,7 +65,7 @@ public class BoardService {
      * 게시글 목록 조회 페이징 처리(메인 페이지용)
      * @return : 게시글 목록(작성자 정보 포함)
      */
-    public BoardResponse.PageDto findAllPage(int page , int size) {
+    public BoardResponse.PageDto findAllPage(int page , int size , String keyword) {
         // 1. 1부터 시작하는 번호를 0부터 변환.(0이하가 들어와도 0으로 고정.)
         int pageIndex = Math.max(0 , page - 1);
 
@@ -75,23 +75,18 @@ public class BoardService {
         // 최신글이 먼저 오도록 board의 id 내림차순 정렬(주문서 생성) 몇번째 page를 몇개의 게시글 수(size)를 어떤 순서로 가져올지.
         Pageable pageable = PageRequest.of(pageIndex , validSize , Sort.by(Sort.Direction.DESC , "id"));
 
-        // 페이징 처리가 된 게시글 목록 조회 요청.(주문 결과 Page)
-        Page<Board> boardPage = boardJpaRepository.findAllJoinUser(pageable);
+        Page<Board> boardPage;
+
+        if(keyword == null || keyword.isBlank()) { // isBlank : null이 아닌 상태에서 공백 제거후 개수 확인.
+            // 페이징 처리가 된 게시글 목록 조회 요청.(주문 결과 Page)
+            boardPage = boardJpaRepository.findAllJoinUser(pageable);
+        } else {
+            boardPage = boardJpaRepository.findAllKeywordJoinUser(keyword , pageable);
+        }
 
         // 조회 후 트랜잭션 안에서 응답DTO로 변환 처리.
-        BoardResponse.PageDto pageDto = new BoardResponse.PageDto(boardPage);
-
-        return pageDto;
+        return new BoardResponse.PageDto(boardPage);
     }
-
-
-
-
-
-
-
-
-
 
 
     /**
@@ -139,8 +134,8 @@ public class BoardService {
         if(!board.isOwner(sessionUser.getId())) throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다.");
 
         // 게시글삭제 , 댓글삭제를 하나의 트랜잭션 안에서.
-        boardJpaRepository.deleteById(id);
         replyJpaRepository.deleteByBoardId(id);
+        boardJpaRepository.deleteById(id);
 
         log.info("게시글 삭제 완료");
     }
