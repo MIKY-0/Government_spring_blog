@@ -1,73 +1,46 @@
 {{> layout/header}}
 
 <div class="container p-5">
-    {{!검색 폼 : GET 방식이라 주소가 /?keyword=...&page=1&size=4 }}
-    <form action="/" class="d-flex mb-4" method="GET">
-        <input type="text" class="form-control me-2" name="keyword" placeholder="제목 또는 내용으로 검색" value="{{keyword}}">
-        <button type="submit" class="btn btn-primary text-nowrap me-2">검색</button>
-        <a href="/" class="btn btn-secondary text-nowrap">초기화</a>
-    </form>
-
-    {{#isSearch}}
-    <p class="text-muted"><b>{{keyword}}</b> 검색결과 {{boardPage.totalElements}}건</p>
-    {{/isSearch}}
-
+{{!boardPage - PageDto}}
     {{#boardPage.content}}
         <div class="card mb-3">
             <div class="card-body">
                 <h4 class="card-title">{{title}}</h4>
+                <!-- board의 getTime()메서드 만들어놓음. get은 제외하고 time만 작성. -->
+                <p>작성자 : {{user.username}} | 작성일 : {{time}}</p>
                 <p>작성자 : {{username}} | 작성일 : {{createdAt}}</p>
                 <a href="/board/{{id}}" class="btn btn-primary">상세보기</a>
             </div>
         </div>
     {{/boardPage.content}}
 
-    {{!게시글 없을때}}
     {{^boardPage.content}}
         <div class="text-center mt-5">
-            <h5>게시글이 없습니다</h5>
+            <h5>게시글이 없습니다.</h5>
         </div>
     {{/boardPage.content}}
 
+    {{#boardPage.pageLinks}}
+        <li class="page-item" {{#active}}active{{/active}}>
+            <a class="page-link" href="/?page={{num}}&size={{boardPage.size}}">{{num}}</a>
+        </li>
+    {{/boardPage.pageLinks}}
 
-    <!-- 페이지네이션 (추후 구현예정) -->
     <ul class="pagination  d-flex justify-content-center">
-        {{!이전 페이지}}
         {{#boardPage.hasPrevious}}
             <li class="page-item">
-                <a class="page-link" href="/?page={{boardPage.previousPage}}&size={{boardPage.size}}&keyword={{keywordParam}}">Previous</a>
-            </li>
-        {{/boardPage.hasPrevious}}
-
-        {{^boardPage.hasPrevious}}
-            <li class="page-item disabled">
-                <a class="page-link">Previous</a>
+                <a class="page-link" href="/?page={{boardPage.PreviousPage}}&size={{boardPage.size}}">이전페이지</a>
             </li>
         {{/boardPage.hasPrevious}}
 
 
-        {{! 페이지 번호}}
-        {{#boardPage.pagesLinks}}
-            {{! active : 현재 페이지일떄 파란색 표시}}
-            <li class="page-item {{#active}}active{{/active}}">
-                <a class="page-link" href="/?page={{number}}&size={{boardPage.size}}&keyword={{keywordParam}}">{{number}}</a>
-            </li>
-        {{/boardPage.pagesLinks}}
-
-        {{!다음}}
-        {{#boardPage.hasNext}}
-            <li class="page-item">
-                <a class="page-link" href="/?page={{boardPage.nextPage}}&keyword={{keywordParam}}">Next</a>
-            </li>
-        {{/boardPage.hasNext}}
-
-         {{^boardPage.hasNext}}
-            <li class="page-item disabled">
-                <a class="page-link">Next</a>
-            </li>
-        {{/boardPage.hasNext}}
     </ul>
 
+    <!--  페이지네이션(추후 구현 예정)  -->
+    <ul class="pagination d-flex justify-content-center">
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        <li class="page-item "><a class="page-link" href="#">1</a></li>
+        <li class="page-item "><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
 </div>
-
-{{> layout/footer}}

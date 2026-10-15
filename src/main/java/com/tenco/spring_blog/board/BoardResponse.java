@@ -16,53 +16,44 @@ import java.util.List;
 화면에 필요한 값만 담아 전달하므로 계층간 결합도도 낮아짐.
  */
 public class BoardResponse {
-    // 게시글 목록 + 페이지 정보 응답 DTO.
     @Data
-    public static class PageDto{
-        private List<ListDto> content; // 현재 페이지의 게시글 목록 정보.
-        private int size; // 페이지 크기
-        private int currentPage; // 현재 페이지(1부터 시작)
-        private int totalPages; // 전체 페이지 수
-        private Long totalElements; // 전체 게시글 수
-        private boolean hasPrevious; // 이전 페이지 있음 여부.
-        private boolean hasNext; // 다음 페이지 있음 여부.
-        private List<PageLink> pagesLinks; // 화면에 표시할 페이지 번호 목록.
-        private int previousPage;
-        private int nextPage;
+    public static class PageDto {
+        private List<ListDto> content;
+        private int size;
+        private int totalPages;
+        private Long totalElements;
+        private int currentPage;
+        private boolean hasPrevious;
+        private boolean hasNext;
+        private List<PageLink> pageLinks;
 
         public PageDto(Page<Board> page) {
             this.content = page.getContent() .stream() .map(ListDto::new) .toList();
             this.size = page.getSize();
-            this.currentPage = page.getNumber() + 1;
             this.totalPages = page.getTotalPages();
             this.totalElements = page.getTotalElements();
+            this.currentPage = page.getNumber();
             this.hasPrevious = page.hasPrevious();
             this.hasNext = page.hasNext();
-            this.pagesLinks = makePageLinks(this.currentPage , this.totalPages);
-            this.previousPage = currentPage - 1;
-            this.currentPage = currentPage + 1;
+            this.pageLinks = makePageLink(this.currentPage , this.totalPages);
         }
 
-        // 편의 메서드 : 현재 페이지를 가운데 두고 앞뒤 2개씩, 최대 5개의 페이지 링크 생성.
-        private List<PageLink> makePageLinks(int currentPage , int totalPages) {
-            List<PageLink> links = new ArrayList<>();
+        private List<PageLink> makePageLink(int currentPage , int totalPages) {
+            List<PageLink> pages = new ArrayList<>();
+            int startPage = Math.max(1 , currentPage - 2);
+            int endPage = Math.min(totalPages , currentPage + 2);
 
-            int startPage = Math.max(1 , currentPage - 2); // 1보다 작아지지 않게.
-            int endPage = Math.min(totalPages , currentPage + 2); // 마지막 페이지가 총 페이지 수보다 커지지 않게.
-
-            for(int i = startPage; i <= endPage; i++)  links.add(new PageLink(i , i == currentPage));
-
-            return links;
+            for(int i = startPage; i <= endPage; i++)  pages.add(new PageLink(i , i == currentPage));
+            return pages;
         }
     }
 
-    // 페이지 번호 버튼 하나의 정보.
-    @Data   @AllArgsConstructor
-    public static class PageLink{
-        private int number; // 표시할 페이지 번호(1부터)
-        private boolean active; // 현재 페이지 여부(강조 표시용)
-    }
 
+    @Data       @AllArgsConstructor
+    public static class PageLink {
+        private int num;
+        private boolean isPage;
+    }
 
 
     @Data
