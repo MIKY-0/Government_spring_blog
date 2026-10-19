@@ -20,7 +20,11 @@ import java.util.UUID;
  */
 @Slf4j
 public class FileUtil {
-    // 1. 업로드 폴더 : 사용자 홈 폴더 아래 blog_uploads(운영체제와 관계없이 동작시킬거임)
+    /*
+    1. 업로드 폴더 : 사용자 홈 폴더 아래 blog_uploads(운영체제와 관계없이 동작시킬거임)
+    "user.home" : 자바에서 기본으로 제공하는 프로퍼티 값. 홈 디렉터리에 "\blog_uploads"경로를 붙여서 문자열로 가져옴.
+    실제 이 경로로 폴더를 생성하지는 않는다. 실제 생성은 createDirectories.
+    */
     public static final String UPLOAD_DIR = Paths.get(System.getProperty("user.home") , "blog_uploads").toString();
 
     // 2 . 허용할 이미지 형식과 저장할 확장자 설정.
@@ -75,6 +79,6 @@ public class FileUtil {
     public static boolean isImageFile(MultipartFile file) {
         if(file == null || file.getContentType() == null) return false;  // 형식 정보가 없으면 허용하지 않음.
 
-        return IMAGE_TYPES.containsKey(file.getContentType());
+        return IMAGE_TYPES.containsKey(file.getContentType()); // IMAGE_TYPES에서 작성해놓은 파일형식이라면 true 반환.
     }
 }
