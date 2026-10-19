@@ -40,8 +40,14 @@ public class UserService {
         // 서버측에서 사용자의 기본 프로필 이미지 생성해서 저장.(새롭게 생긴 파일 이름이 return됨. - saveImage)
         String profileImage = FileUtil.saveImage(joinDto.getProfileImage());
 
+        // 프로필 파일이름과 회원정보 저장.
+        User user = joinDto.toEntity(profileImage);
 
-        User savedUser = userJpaRepository.save(joinDto.toEntity(profileImage));
+        // Role 기본값 할당.
+        user.addRole(Role.USER);
+        User savedUser = userJpaRepository.save(user);
+
+
 
         log.info("회원 가입 서비스  완료 - 사용자명 : {} , Id : {}" , joinDto.getUsername() , joinDto.getEmail());
 

@@ -1,5 +1,6 @@
 package com.tenco.spring_blog._core.config;
 
+import com.tenco.spring_blog._core.interceptor.AdminInterceptor;
 import com.tenco.spring_blog._core.interceptor.IpBlockInterceptor;
 import com.tenco.spring_blog._core.interceptor.LoginInterceptor;
 import com.tenco.spring_blog._core.interceptor.SessionUserModelInterceptor;
@@ -19,6 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private final LoginInterceptor loginInterceptor;
     private final IpBlockInterceptor ipBlockInterceptor;
     private final SessionUserModelInterceptor sessionUserModelInterceptor;
+    private final AdminInterceptor adminInterceptor;
 
     // 업로드 폴더의 파일인 "/images/**" 주소로 제공.
     @Override
@@ -44,15 +46,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(ipBlockInterceptor)
                         .addPathPatterns("/");
 
+        registry.addInterceptor(adminInterceptor)
+                        .addPathPatterns("/admin/dashboard");
 
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/user/**" , "/board/**" , "/reply/**") // 인터셉터가 동작할 때 URL 패턴 지정. /user , /board 아래 모든 경로 가능.
+                .addPathPatterns("/user/**" , "/board/**" , "/reply/**" , "/admin/**") // 인터셉터가 동작할 때 URL 패턴 지정. /user , /board 아래 모든 경로 가능.
                 .excludePathPatterns("/board/list" , "/board/{id:\\d+}");  // 인터셉터에서 제외할 URL 패턴 지정. \\d+는 정규표현식.
         // 1개 이상의 숫자 의미. 예) /board/1 , /board/123 (상세보기)은 로그인 없어도 접근가능.
         // /board/1/update처럼 뒤에 (/update같이)경로가 더 붙으면 제외대상에서 빠짐.
 
         registry.addInterceptor(sessionUserModelInterceptor)
                 .addPathPatterns("/**"); // 모든 경로.
-
     }
 }

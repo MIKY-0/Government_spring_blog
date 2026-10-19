@@ -5,6 +5,13 @@ INSERT INTO user_tb (username, password, email, created_at) VALUES ('minsu',   '
 INSERT INTO user_tb (username, password, email, created_at) VALUES ('jihun',   '1234', 'jihun@tenco.com',   NOW());
 INSERT INTO user_tb (username, password, email, created_at) VALUES ('seoyeon', '1234', 'seoyeon@tenco.com', NOW());
 
+-- 1-1. 사용자 역할 (admin 은 관리자이면서 일반 사용자)
+INSERT INTO user_role_tb (user_id, role) VALUES (1, 'ADMIN');
+INSERT INTO user_role_tb (user_id, role) VALUES (1, 'USER');
+INSERT INTO user_role_tb (user_id, role) VALUES (2, 'USER');
+INSERT INTO user_role_tb (user_id, role) VALUES (3, 'USER');
+INSERT INTO user_role_tb (user_id, role) VALUES (4, 'USER');
+
 -- 2. 게시글 (user_id 는 위 사용자의 id)
 -- admin(1)
 INSERT INTO board_tb (title, content, user_id, created_at) VALUES ('블로그 개설을 환영합니다', '새 블로그가 문을 열었습니다. 많은 참여 부탁드립니다.', 1, NOW());
@@ -49,4 +56,3 @@ INSERT INTO reply_tb (comment, board_id, user_id, created_at) VALUES ('리액트
 INSERT INTO reply_tb (comment, board_id, user_id, created_at) VALUES ('포트폴리오 팁 정말 유용해요.', 7, 4, NOW());
 INSERT INTO reply_tb (comment, board_id, user_id, created_at) VALUES ('면접 준비 이야기도 들려주세요.', 7, 2, NOW());
 
--- 5번, 8번 게시글은 댓글 없음 (댓글이 없을 때 화면 확인용)

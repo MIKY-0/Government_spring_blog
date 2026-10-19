@@ -17,6 +17,8 @@ import java.util.UUID;
 /*
  내부에 이 클래스는 상태값을 가지지 않게 할거임.
  FileUtil은 상태도 없고 다른 빈에 의존하지 않는 순수한 도구 함수 모음이라 static메서드로 활용할 예정.
+
+ MultipartFile : 업로드된 파일 그 자체(이미지 뿐 아니라 모든 파일)
  */
 @Slf4j
 public class FileUtil {
@@ -77,6 +79,7 @@ public class FileUtil {
 
     // 편의 메서드 : 허용한 이미지 형식인지 확인.
     public static boolean isImageFile(MultipartFile file) {
+        // getContentType : MIME타입을 가져옴.("cat.png 파일" -->  (확장자 - .png) , (MIME 타입 - image/page))
         if(file == null || file.getContentType() == null) return false;  // 형식 정보가 없으면 허용하지 않음.
 
         return IMAGE_TYPES.containsKey(file.getContentType()); // IMAGE_TYPES에서 작성해놓은 파일형식이라면 true 반환.
