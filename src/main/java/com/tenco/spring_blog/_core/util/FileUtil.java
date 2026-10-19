@@ -25,7 +25,7 @@ public class FileUtil {
     /*
     1. 업로드 폴더 : 사용자 홈 폴더 아래 blog_uploads(운영체제와 관계없이 동작시킬거임)
     "user.home" : 자바에서 기본으로 제공하는 프로퍼티 값. 홈 디렉터리에 "\blog_uploads"경로를 붙여서 문자열로 가져옴.
-    실제 이 경로로 폴더를 생성하지는 않는다. 실제 생성은 createDirectories.
+    실제 이 경로로 폴더를 생성하지는 않는다. 실제 폴더 생성은 createDirectories.
     */
     public static final String UPLOAD_DIR = Paths.get(System.getProperty("user.home") , "blog_uploads").toString();
 
@@ -47,14 +47,17 @@ public class FileUtil {
         if(!isImageFile(file)) throw new Exception400("이미지 파일은 (JPG , PNG , GIF , WEBP)만 업로드 가능.");
 
         // 3. 겹치지 않는 새 파일 이름 만들기(UUID + 확장자)
-        String extension = IMAGE_TYPES.get(file.getContentType());
+        String extension = IMAGE_TYPES.get(file.getContentType()); // value값 가져옴.
         String saveFileName = UUID.randomUUID() + extension;
 
         // 4. 폴더가 없으면 만들고 , 파일 저장.
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+        Path uploadPath = Paths.get(UPLOAD_DIR ); // 문자열로 저장된 UPLOAD_DIR을 Path으로 변환.
+        // Path uploadPath = Paths.get(UPLOAD_DIR , saveFileName);  // --> resolve로 연결하는 방법 말고 이렇게도 가능.
         try{
-            Files.createDirectories(uploadPath); // 이미 있으면 아무일도 하지않음.
-            file.transferTo(uploadPath.resolve(saveFileName));  // 폴더경로 + 파일이름(파일 생성됨)
+            Files.createDirectories(uploadPath); // Path타입 uploadPath경로를 실제 폴더로 생성. 이 경로의 폴더가 이미 있으면 아무일도 하지않음.
+            file.transferTo(uploadPath.resolve(saveFileName));  // 업로드된 파일을 지정한 폴더에 원하는 파일명으로 실제 저장.
+            // resolve : uploadPath(path)와  saveFileName(String)을 연결하여 새로운 Path객체로 생성.
+            // transferTo : resolve로 생성한 path파일을 createDirectories로 생성한 폴더 안에 파일저장.
         }catch (IOException e) {
             log.error("파일 저장 실패 : {}" , e.getMessage());
             throw new Exception500("파일 저장 중 오류가 발생했습니다.");
@@ -77,7 +80,7 @@ public class FileUtil {
 
 
 
-    // 편의 메서드 : 허용한 이미지 형식인지 확인.
+    // 편의 메서드 : IMAGE_TYPES로 허용한 이미지 형식인지 확인.
     public static boolean isImageFile(MultipartFile file) {
         // getContentType : MIME타입을 가져옴.("cat.png 파일" -->  (확장자 - .png) , (MIME 타입 - image/page))
         if(file == null || file.getContentType() == null) return false;  // 형식 정보가 없으면 허용하지 않음.
