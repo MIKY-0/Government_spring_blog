@@ -26,7 +26,6 @@ public class UserRequest {
         public void validate() {
             if(!hasPassword() && !hasProfileImage()) throw new Exception400("변경할 패스워드나 프로필 사진을 입력해주세요");
         }
-
     }
 
 

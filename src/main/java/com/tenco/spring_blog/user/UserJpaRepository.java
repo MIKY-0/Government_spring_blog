@@ -19,6 +19,7 @@ public interface UserJpaRepository extends JpaRepository<User , Long> {
      */
 
     // 사용자명과 비밀번호로 조회(로그인용)
+    // 권한이 없는 User도 함꼐 조회해야하므로 left join.  inner join을 하면 권한없는 유저는 조회되지 않기 때문.
     @Query("""
         select distinct u from User u left join fetch u.roles r where u.username = :username and u.password = :password
 """)

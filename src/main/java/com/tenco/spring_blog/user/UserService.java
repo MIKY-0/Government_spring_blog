@@ -48,7 +48,6 @@ public class UserService {
         User savedUser = userJpaRepository.save(user);
 
 
-
         log.info("회원 가입 서비스  완료 - 사용자명 : {} , Id : {}" , joinDto.getUsername() , joinDto.getEmail());
 
         return new UserResponse.JoinDto(savedUser);
