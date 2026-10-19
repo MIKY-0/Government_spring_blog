@@ -8,6 +8,7 @@ Service
 
 import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.error.Exception404;
+import com.tenco.spring_blog._core.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,11 @@ public class UserService {
         // 이메일 중복 체크.
         userJpaRepository.findByEmail(joinDto.getEmail()).ifPresent(u -> {throw new Exception400("이미 존재하는 이메일입니다.");});
 
-        User savedUser = userJpaRepository.save(joinDto.toEntity());
+        // 서버측에서 사용자의 기본 프로필 이미지 생성해서 저장.(새롭게 생긴 파일 이름이 return됨. - saveImage)
+        String profileImage = FileUtil.saveImage(joinDto.getProfileImage());
+
+
+        User savedUser = userJpaRepository.save(joinDto.toEntity(profileImage));
 
         log.info("회원 가입 서비스  완료 - 사용자명 : {} , Id : {}" , joinDto.getUsername() , joinDto.getEmail());
 
@@ -84,9 +89,23 @@ public class UserService {
      */
     @Transactional
     public SessionUserDto updateById(Long id , UserRequest.UpdateDto updateDto) {
+        // 1. 정보조회.
         User user = findById(id); // get매핑에서 findById했는데 또 하는 이유 : post매핑에서도 영속상태로 가져오려고.
-        user.update(updateDto.getPassword());
 
+        // 2. 비밀번호 조회.
+        if(updateDto.hasPassword()) {
+            user.update(updateDto.getPassword());
+        }
+
+        // 3. 새 이미지를 골랐을 때만 교체.
+        if(updateDto.hasProfileImage()){
+            String newImage = FileUtil.saveImage(updateDto.getProfileImage());
+            String oldImage = user.getProfileImage();
+            user.updateProfileImage(newImage); // DB에는 새 파일이름(변경감지)
+            FileUtil.deleteFile(oldImage); // 기존 파일은 서버측 폴더에서 삭제 처리.
+        }
+
+         // 세션 동기화용 DTO 변환.
         return new SessionUserDto(user);
     }
 
@@ -101,4 +120,17 @@ public class UserService {
         return userJpaRepository.findById(id).orElseThrow(() -> new Exception404("일치하는 사용자가 없습니다"));
     }
 
+
+    public UserResponse.DetailDto findDetail(Long userId) {
+        User user = findById(userId);
+        return new UserResponse.DetailDto(user);
+    }
+
+    @Transactional
+    public void deleteProfileImage(Long sessionUserId) {
+        User user = findById(sessionUserId);
+        String oldImage = user.getProfileImage();
+        user.updateProfileImage(null); // 1. 삭제 --> DB에 파일명 Null로 변경.(변경감지)
+        FileUtil.deleteFile(oldImage); // 2. 폴더 실제 파일 삭제.
+    }
 }
