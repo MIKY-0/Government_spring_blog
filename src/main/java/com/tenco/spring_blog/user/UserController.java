@@ -3,9 +3,11 @@ package com.tenco.spring_blog.user;
 import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.error.Exception404;
 import com.tenco.spring_blog._core.util.Define;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,33 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Slf4j
 public class UserController {
     private final UserService userService;
+
+    // application.yaml 의 변수를 가져올때 사용.
+    @Value("${oauth.kakao.client-id}")
+    private String kakaoClientId;
+
+    @Value("${oauth.kakao.client-secret}")
+    private String kakaoClientSecret;
+
+    @Value("${oauth.kakao.redirect-uri}")
+    private String redirectUri;
+
+    // 서버가 시작될 때 한번 실행되어 콘솔에 값이 찍힘.(테스트용)
+    @PostConstruct
+    public void init(){
+        log.info("카카오 REST API Key 확인 : {}" , kakaoClientId);
+        log.info("카카오 Client Secret 확인 : {}" , kakaoClientSecret);
+    }
+
+    @GetMapping("/kakao-login")
+    public String kakaoLogin(){
+        String url = "https://kauth.kakao.com/oauth/authorize" +
+                "?client_id=" + kakaoClientId +
+                "&redirect_uri=" + redirectUri +
+                "&response_type=code";
+
+        return "redirect:" + url;
+    }
 
     // 프로필 삭제
     @PostMapping("/user/profile-image/delete")
