@@ -173,7 +173,7 @@ public class UserController {
     }
 
     @PostMapping("/user/update")
-    public String update(HttpSession session , UserRequest.UpdateDto updateDto , Model model){
+    public String update(HttpSession session , UserRequest.UpdateDto updateDto){
 
         SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
 
