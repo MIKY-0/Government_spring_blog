@@ -3,6 +3,7 @@ package com.tenco.spring_blog.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -36,13 +37,17 @@ public class User {
     @JoinColumn(name = "user_id" , nullable = false)    @OneToMany(cascade = CascadeType.ALL , orphanRemoval = true)
     private List<UserRole> roles = new ArrayList<>();
 
+    // 가입 경로 필드.(DB에는 "LOCAL" , "KAKAO"로 저장)
+    @Enumerated(EnumType.STRING)       @Column(nullable = false)    @ColumnDefault("'LOCAL'") // 문자열이므로 작은따옴표 필수.
+    private OauthProvider provider;
 
     @Builder // id와 createdAt은 자동으로 채워지므로 빌더에서 제외.
-    public User(String username , String password , String email , String profileImage) {
+    public User(String username , String password , String email , String profileImage , OauthProvider provider) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
+        this.provider = (provider == null) ? OauthProvider.LOCAL : provider; // 계정없으면 LOCAL , 있으면 KAKAO
     }
 
     // password 하나만 있으니 dto말고 그냥 String으로 처리.
@@ -62,6 +67,13 @@ public class User {
 
     // 로그인한 사용자의 관리자 여부 확인 메서드.
     public boolean isAdmin()    {return hasRole(Role.ADMIN);}
+
+    public String getProfilePath() {
+        if(this.profileImage == null) return null;
+        if(this.profileImage.startsWith("http")) return this.profileImage;  // 외부서버(카카오)에서 가져온 이미지라면.
+
+        return "/images/" + this.profileImage; // user/detail.mustache , update-form.mustache의 "/images" 안지우면 오류.
+    }
 
     // 해당 역할을 가지고 있는지 확인.
     public boolean hasRole(Role role) {

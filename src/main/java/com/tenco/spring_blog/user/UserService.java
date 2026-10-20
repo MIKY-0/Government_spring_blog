@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service    @RequiredArgsConstructor    @Slf4j
 @Transactional(readOnly = true)
 public class UserService {
@@ -138,5 +140,39 @@ public class UserService {
         String oldImage = user.getProfileImage();
         user.updateProfileImage(null); // 1. 삭제 --> DB에 파일명 Null로 변경.(변경감지)
         FileUtil.deleteFile(oldImage); // 2. 폴더 실제 파일 삭제.
+    }
+
+    // 카카오 로그인 : 처음이면 자동 회원가입, 이미 계정있으면 로그인.
+    @Transactional
+    public SessionUserDto kakaoLogin(UserResponse.KakaoUserInfo kakaoUserInfo) {
+        // 1. 카카오 회원번호로 우리 서비스의 사용자명 만들기.
+        String username = "kakao_" + kakaoUserInfo.getId();
+
+        // 2. 이미 가입했는지 확인, 없으면 자동 회원가입.
+        // 값 있으면 findByUsername(username) , 없으면 joinKakaoUser() 실행.
+        // DB에 이 유저가 있는지 없는지 검사.(여기선 일반회원인지 카카오회원인지 구분안함)  유저가 없다면 joinKakaoUser실행 ->
+        // 카카오유저로 만든다.
+        User user = userJpaRepository.findByUsername(username)
+                .orElseGet(() -> joinKakaoUser(username , kakaoUserInfo));
+
+        // 3. 위에서 뽑은 유저가 일반회원이라면 카카오로 로그인 못하도록 막음.
+        if(user.getProvider() != OauthProvider.KAKAO) throw new Exception400("카카오 유저가 아닙니다");
+
+        // 트랜잭션 안에서 SessionUserDto 생성.
+        return new SessionUserDto(user);
+    }
+
+
+    private User joinKakaoUser(String username, UserResponse.KakaoUserInfo kakaoUserInfo) {
+        // 카카오 사용자는 비밀번호로 로그인하지 않으므로 아무도 알 수 없는 값을 넣음.
+        User newUser = User.builder()
+                .username(username)
+                .password(UUID.randomUUID().toString())
+                .profileImage(kakaoUserInfo.getProperties().getProfileImage())
+                .provider(OauthProvider.KAKAO)
+                .email(username + "@kakao.com")
+                .build();
+        newUser.addRole(Role.USER);
+        return userJpaRepository.save(newUser);
     }
 }
