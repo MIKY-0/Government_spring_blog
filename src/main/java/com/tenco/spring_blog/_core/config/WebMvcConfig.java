@@ -6,8 +6,10 @@ import com.tenco.spring_blog._core.interceptor.LoginInterceptor;
 import com.tenco.spring_blog._core.interceptor.SessionUserModelInterceptor;
 import com.tenco.spring_blog._core.util.FileUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -62,4 +64,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/admin/**");
 
     }
+
+    // 비밀번호 해싱 도구를 빈으로 등록(필요한 곳에서 DI 할 수 있다)
+    @Bean // 이 메서드가 반환하는 객체를 스프링 빈으로 등록됨.
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 }

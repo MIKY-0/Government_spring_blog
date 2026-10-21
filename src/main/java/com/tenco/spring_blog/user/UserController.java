@@ -2,7 +2,6 @@ package com.tenco.spring_blog.user;
 
 import com.tenco.spring_blog._core.error.UnauthorizedException;
 import com.tenco.spring_blog._core.util.Define;
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,82 +23,20 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class UserController {
     private final UserService userService;
-
-    // application.yaml 의 변수를 가져올때 사용.
-    @Value("${oauth.kakao.client-id}")
-    private String kakaoClientId;
-
-    @Value("${oauth.kakao.client-secret}")
-    private String kakaoClientSecret;
-
-    @Value("${oauth.kakao.redirect-uri}")
-    private String redirectUri;
-
+    private final KakaoLoginService kakaoLoginService;
 
     // 카카오 인가코드 요청 페이지로.
     @GetMapping("/kakao-login")
-    public String kakaoLogin(){
-        String url = "https://kauth.kakao.com/oauth/authorize" +
-                "?client_id=" + kakaoClientId +
-                "&redirect_uri=" + redirectUri +
-                "&response_type=code";
-
-        return "redirect:" + url;
-    }
+    public String kakaoLogin()  {return "redirect:" + kakaoLoginService.getAuthorizUrl();}
 
 
     // 흐름. 인가 코드 받기 --> 액세스 토큰 요청 --> 사용자 정보 요청 --> 사용자 정보 받기
-    // 1. 인가 코드 받기(code)
     @GetMapping("/oauth/kakao")
     public String kakaoCallback(@RequestParam(name = "code" , required = false) String code , HttpSession session) {
-        if(code == null) throw new UnauthorizedException("카카오 로그인이 취소되었습니다.");
+        SessionUserDto sessionUserDto = kakaoLoginService.login(code);
+        session.setAttribute(Define.SESSION_USER , sessionUserDto);
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<UserResponse.OauthToken> tokenResponse;
-
-        try {
-            // 2. 받은 인가 코드로 토큰 요청(POST) 만들기.
-            HttpHeaders tokenHeaders = new HttpHeaders();
-            // Content-Type : 일반 form 형식(x-www-....)
-            tokenHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String , String> tokenParams = new LinkedMultiValueMap<>();
-            tokenParams.add("grant_type" , "authorization_code");
-            tokenParams.add("client_id" , kakaoClientId);
-            tokenParams.add("redirect_uri" , redirectUri);
-            tokenParams.add("code" , code);
-            tokenParams.add("client_secret" , kakaoClientSecret);
-
-            HttpEntity<MultiValueMap<String , String>> tokenRequest = new HttpEntity(tokenParams , tokenHeaders);
-
-            // 3. 토큰 요청 실행 후 , 응답까지 받기
-            tokenResponse = restTemplate.exchange("https://kauth.kakao.com/oauth/token" , HttpMethod.POST ,
-                    tokenRequest , UserResponse.OauthToken.class);
-
-
-            // 4. 응답받은 액세스 토큰으로 사용자 정보 조회.
-            HttpHeaders userHeaders = new HttpHeaders();
-
-            userHeaders.setBearerAuth(tokenResponse.getBody().getAccessToken());
-            userHeaders.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            HttpEntity userRequest = new HttpEntity(userHeaders);
-            ResponseEntity<UserResponse.KakaoUserInfo> userResponse = restTemplate.exchange("https://kapi.kakao.com/v2/user/me" ,
-                    HttpMethod.GET , userRequest , UserResponse.KakaoUserInfo.class);
-
-
-            // 내부 로직 - 최초 소셜 로그인 사용자라면 자동 회원 가입(필요 정보가 더 있다면 추가 기입)
-            //           - 이미 회원가입 되어있는 사용자라면 로그인 처리.
-            UserResponse.KakaoUserInfo kakaoUserInfo = userResponse.getBody();
-            SessionUserDto sessionUserDto = userService.kakaoLogin(kakaoUserInfo);
-            session.setAttribute(Define.SESSION_USER , sessionUserDto);
-
-            return "redirect:/";
-        }catch (HttpClientErrorException e){
-            // 카카오가 4xx를 응답한 경우.
-            log.error("카카오 API 오류 : {}" , e.getResponseBodyAsString());
-            throw new UnauthorizedException("카카오 로그인에 실패했습니다");
-        }
+        return "redirect:/";
     }
 
 
@@ -180,6 +116,7 @@ public class UserController {
             // 4. 세션 동기화 : 수정된 정보를 세션에 반영.
             SessionUserDto updateSessionUserDto = userService.updateById(sessionUserDto.getId() , updateDto);
             session.setAttribute(Define.SESSION_USER , updateSessionUserDto);
+
 
             return "redirect:/user/detail";
     }

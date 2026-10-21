@@ -47,7 +47,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.profileImage = profileImage;
-        this.provider = (provider == null) ? OauthProvider.LOCAL : provider; // 계정없으면 LOCAL , 있으면 KAKAO
+        this.provider = (provider == null) ? OauthProvider.LOCAL : provider; // 계정없으면 LOCAL , 있으면 그대로
     }
 
     // password 하나만 있으니 dto말고 그냥 String으로 처리.
