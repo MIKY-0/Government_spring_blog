@@ -21,6 +21,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserJpaRepository userJpaRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입.
@@ -185,5 +186,10 @@ public class UserService {
                 .build();
         newUser.addRole(Role.USER);
         return userJpaRepository.save(newUser);
+    }
+
+    // 이메일 사용 가능 여부.(인증번호 발송 전)
+    public void checkEmailAvailable(String email) {
+        userJpaRepository.findByEmail(email).ifPresent( u -> {throw new Exception400("이미 존재하는 이메일입니다");});
     }
 }
