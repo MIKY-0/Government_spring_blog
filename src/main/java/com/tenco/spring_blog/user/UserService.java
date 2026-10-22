@@ -7,8 +7,10 @@ Service
  */
 
 import com.tenco.spring_blog._core.error.Exception400;
+import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.error.Exception404;
 import com.tenco.spring_blog._core.util.FileUtil;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +23,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserJpaRepository userJpaRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입.
@@ -31,16 +32,19 @@ public class UserService {
      * @return : 저장된 사용자 정보
      */
     @Transactional
-    public UserResponse.JoinDto join(UserRequest.JoinDto joinDto){
-        log.info("회원 가입 서비스 시작 - 사용자명 : {}" , joinDto.getUsername());
+    public UserResponse.JoinDto join(UserRequest.JoinDto joinDto , String verifiedEmail){
+        // 이메일 인증 체크.
+        // 이메일 인증을 건너뛰었거나 인증된 이메일과 다른 이메일을 입력했다면
+        if(verifiedEmail == null || !verifiedEmail.equals(joinDto.getEmail())) throw new Exception400("인증된 이메일이 아닙니다");
 
         userJpaRepository.findByUsername(joinDto.getUsername()).ifPresent(user -> {
             log.warn("회원가입 실패 - 중복된 사용자명 : {}" , joinDto.getUsername());
             throw new Exception400("이미 존재하는 사용자명입니다");
         });
 
-        // 이메일 중복 체크.
-        userJpaRepository.findByEmail(joinDto.getEmail()).ifPresent(u -> {throw new Exception400("이미 존재하는 이메일입니다.");});
+        // 이메일 중복 체크.  주석문과 같은 코드.
+        checkEmailAvailable(joinDto.getEmail());
+//        userJpaRepository.findByEmail(joinDto.getEmail()).ifPresent(u -> {throw new Exception400("이미 존재하는 이메일입니다.");});
 
         // 서버측에서 사용자의 기본 프로필 이미지 생성해서 저장.(새롭게 생긴 파일 이름이 return됨. - saveImage)
         String profileImage = FileUtil.saveImage(joinDto.getProfileImage());
@@ -60,6 +64,7 @@ public class UserService {
 
         return new UserResponse.JoinDto(savedUser);
     }
+
 
     // 로그인.
     /**

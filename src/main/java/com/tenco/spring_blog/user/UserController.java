@@ -68,10 +68,16 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public String joinAction(UserRequest.JoinDto joinDto) {
+    public String joinAction(UserRequest.JoinDto joinDto , HttpSession session) {
             // 1. 유효성 검사.
             joinDto.validate();
-            userService.join(joinDto);
+
+            // 이메일 인증 완료된 값 꺼내오기.
+            String verifiedEmail = (String) session.getAttribute(Define.VERIFIED_EMAIL);
+            userService.join(joinDto , verifiedEmail);
+
+            // 가입 완료 후 임시 저장해둔 세션의 이메일 정보 제거. (회원가입할 때만 인증이메일 체크)
+            session.removeAttribute(Define.VERIFIED_EMAIL);
 
             return "redirect:/login";
     }

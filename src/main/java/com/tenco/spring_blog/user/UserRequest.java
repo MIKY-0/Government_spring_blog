@@ -22,7 +22,6 @@ public class UserRequest {
             if(code == null || code.trim().isEmpty()) throw new Exception400("인증번호를 입력해주세요");
 
         }
-
     }
 
     // 회원정보 수정용 DTO
