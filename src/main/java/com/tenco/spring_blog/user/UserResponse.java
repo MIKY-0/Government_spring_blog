@@ -13,9 +13,11 @@ public class UserResponse {
         private String email;
         private String profileImage; // 파일 이름(없으면 null)
         private String createdAt; // 포맷된 가입일.
+        private int point;
 
         public DetailDto(User user) {
             this.id = user.getId();
+            this.point = user.getPoint();
             this.username = user.getUsername();
             this.email = user.getEmail();
             this.profileImage = user.getProfilePath();

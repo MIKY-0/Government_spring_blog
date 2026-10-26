@@ -2,6 +2,7 @@ package com.tenco.spring_blog.board;
 
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.util.Define;
+import com.tenco.spring_blog.purchase.PurchaseService;
 import com.tenco.spring_blog.reply.ReplyRequest;
 import com.tenco.spring_blog.reply.ReplyResponse;
 import com.tenco.spring_blog.reply.ReplyService;
@@ -25,7 +26,21 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
     private final ReplyService replyService;
+    private final PurchaseService purchaseService;
 //    private final HttpSession session;  필드로 올려도 되지만 실행이 무거워짐. 웬만하면 메서드에 의존관계로 넣자.
+
+    // 유료 게시글 구매 요청 URL.
+    //  /board/{board.id}/purchase
+    @PostMapping("/board/{id}/purchase")
+    public String purchase(@PathVariable(name = "id") Long id , HttpSession session) {
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        purchaseService.purchase(id , sessionUserDto.getId());
+
+        // 구매 후 상세보기로 이동
+        return "redirect:/board/" + id;
+    }
+
+
 
     // GET http://localhost:8080/ , http://localhost:8080/board/list  둘 다 담당.
     // excludePathPatterns로 제외되어 로그인 접근 가능.
@@ -50,8 +65,9 @@ public class BoardController {
     // GET http://localhost:8080/board/3
     @GetMapping("/board/{id}")
     public String detail(@PathVariable(name="id") Long id , Model model , HttpSession session) {
-        BoardResponse.DetailDto detailDto = boardService.findById(id);
         SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        Long sessionUserId = (sessionUserDto == null) ? null : sessionUserDto.getId();
+        BoardResponse.DetailDto detailDto = boardService.findById(id , sessionUserId);
         model.addAttribute("board", detailDto);
 
         // 로그인 + 작성자 본인일 때만 수정 , 삭제 버튼 표시.
@@ -60,7 +76,7 @@ public class BoardController {
 
         // 댓글 목록 조회.
         // sessionUserDto.getId()를 바로 넣으면 sessionUserDto가 null일때 점 연산자때문에 에러. 방어적코드 작성.
-        Long sessionUserId = (sessionUserDto == null) ? null : sessionUserDto.getId();
+
         List< ReplyResponse.ListDto> replyList = replyService.findAllByBoardId(id , sessionUserId);
         model.addAttribute("replyList" , replyList);
 

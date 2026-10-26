@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
@@ -19,6 +20,9 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본키 값을 자동으로 생성(IDENTITY --> DB의 기본 설정을 따름.) Auto-increment 기능 사용.
     private Long id;
 
+    // 유료 게시글 가격
+    public static final int PREMIUM_PRICE = 500;
+
     // @CreationTimestamp : now()를 사용하지 않아도 자동으로 PC에서 DB 날짜 주입해줌.
     @CreationTimestamp
     private Timestamp createdAt; // created_at 컬럼(스프링이 createdAt을 기본값인 스네이크 케이스로 자동 변환해줌.)
@@ -27,6 +31,9 @@ public class Board {
     private String title;
     private String content;
     // private String username;
+
+    @Column(nullable = false)   @ColumnDefault("false")
+    private boolean premium;
 
     // LAZY전략 , EAGER전략
     // LAZY 전략 : 게시글을 조회 할 때 사용자는 바로 조회하지 않고 실제로 사용할 때 그 때 한번 더 조회.
@@ -37,10 +44,11 @@ public class Board {
 
     // 비즈니스 로직을 위한 생성자 설계.
     // id와 createdAt은 JPA가 자동으로 설정하므로 매개변수에서 제외했음.
-    public Board(String title, String content, User user) {
+    public Board(String title, String content, User user , boolean premium) {
         this.title = title;
         this.content = content;
         this.user = user;
+        this.premium = premium;
     }
 
     // 자신의 상태값을 자신이 직접 변경하는 메서드 추가. (영속성 엔티티를 수정하는 메서드)
@@ -51,6 +59,7 @@ public class Board {
          // 영속 상태에 있는 엔티티의 필드값을 여기서 변경.
         this.title = updateDto.getTitle();
         this.content = updateDto.getContent();
+        this.premium = updateDto.isPremium();
 
         /*
          변경감지(dirty checking)  동작 과정.
