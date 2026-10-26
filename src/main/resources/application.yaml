@@ -29,6 +29,11 @@ spring:
           timeout: 5000             # 서버 응답을 기다리는 최대 시간 (밀리초)
           writetimeout: 5000        # 데이터를 보내는 데 걸리는 최대 시간 (밀리초)
 
+server:
+  servlet:
+    session:
+      tracking-modes: cookie    # 세션 번호를 쿠키로만 전달 (주소에 ;jsessionid 를 붙이지 않음)
+
   solapi:
     api-key: ${SOLAPI_API_KEY}
     api-secret: ${SOLAPI_API_SECRET}

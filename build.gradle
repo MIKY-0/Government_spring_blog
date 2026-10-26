@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.solapi:sdk:1.0.3'
+
     // 메일 발송 (JavaMailSender)
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
