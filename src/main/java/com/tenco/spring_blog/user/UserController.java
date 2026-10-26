@@ -36,22 +36,11 @@ public class UserController {
         return "redirect:/";
     }
 
-    /// ------------------------------------------휴대폰 번호 인증----------------------------------------------------------
     // 휴대폰 인증 화면
     @GetMapping("/user/sms")
-    public String certifySms(){
+    public String SmsView(){
         return "user/sms-form";
     }
-
-    @PostMapping("/api/sms/send")
-    public ResponseEntity<?> sendCode(@RequestBody UserRequest.PhoneCodeDto phoneCodeDto , HttpSession session){
-
-        return ResponseEntity.ok(Map.of("message" , "인증번호가 전송되었습니다."));
-    }
-
-
-    /// ----------------------------------------------------------------------------------------------------
-
 
 
     // 프로필 삭제

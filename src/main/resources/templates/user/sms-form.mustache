@@ -60,34 +60,6 @@
 
     // 휴대폰 인증번호 보내기.
     async function certifyCode() {
-        const code = document.querySelector("#code").value;
-        const phoneNumber = document.querySelector("#phoneNumber").value;
-
-        if(!code) {
-            alert('인증번호를 입력해주세요');
-            return;
-        }
-
-        try {
-            const res = await fetch("/api/sms/verify" , {
-                method : "post" ,
-                headers : {"Content-Type" : "application/json"} ,
-                body : JSON.stringify({phoneNumber : phoneNumber , code : code})
-            })
-
-            const result = await response.json();
-            const msg = document.querySelector("#msg");
-
-            if(res.ok){
-                isSmsVerified = true;
-                msg.innerText = result.message;
-            }
-
-        }catch(e) {
-            alert('인증번호가 일치하지 않습니다')
-        }finally {
-
-        }
 
     }
 
