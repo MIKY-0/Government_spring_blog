@@ -101,8 +101,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotEnoughPointException.class)
     @ResponseBody // return을 http 응답바디에 넣음. 이 return과 Http설정 등을 보고 Spring이 content-type을 text 할지 , html 할지 정함.
-    public String ex403(NotEnoughPointException e , HttpServletRequest req ) {
-        log.warn("==== 403 Forbidden 에러 발생 ====");
+    public String exNotEnoughPointException(NotEnoughPointException e , HttpServletRequest req ) {
+        log.warn("==== 포인트 부족 에러 발생 ====");
         log.warn("요청 URL : {}" , req.getRequestURL());
         log.warn("권한 오류 : {}" , e.getMessage());
         log.warn("예외 클래스 : {}" , e.getClass().getSimpleName());
@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
         return """
                 <script>
                     alert('%s');
-                    history.back();
+                    location.href = '/user/detail';
                 </script>
                 """.formatted(msg);
     }

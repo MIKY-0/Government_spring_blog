@@ -115,14 +115,12 @@ public class BoardResponse {
 
             this.content = board.getContent();
             this.premium = board.isPremium();
-            this.price = 500;  //  추후 수정.
+            this.price = Board.PREMIUM_PRICE;
             this.owner = owner;
             this.purchased = purchased;
             this.canRead = !premium || owner || purchased;
 
             if(!canRead) this.content = null;
-
-
         }
     }
 

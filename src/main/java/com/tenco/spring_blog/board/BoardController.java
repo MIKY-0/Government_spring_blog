@@ -148,6 +148,7 @@ public class BoardController {
     @PostMapping("/board/{id}/delete")
     public String delete(@PathVariable Long id , HttpSession session) throws Exception403{
             SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+
             boardService.deleteById(id , sessionUserDto);
 
            return "redirect:/";

@@ -72,8 +72,10 @@ public class UserApiController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "로그인이 필요합니다"));
         }
+
         // 2. 유효성 검사
         chargeDto.validate();
+
         // 3. 서비스단에 위임
         int point = userService.chargePoint(sessionUserDto.getId(), chargeDto.getAmount());
 

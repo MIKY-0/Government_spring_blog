@@ -24,4 +24,7 @@ public interface PurchaseJpaRepository extends JpaRepository<Purchase , Long> {
     @Modifying // select 아니라면 반드시 설정.
     @Query("delete from Purchase p where p.board.id = :boardId")
     void deleteByBoardId(@Param("boardId") Long boardId);
+
+    @Query("select count(p) from Purchase p where p.board.id = :boardId")
+    long countByBoardId(@Param("boardId") Long boardId);
 }

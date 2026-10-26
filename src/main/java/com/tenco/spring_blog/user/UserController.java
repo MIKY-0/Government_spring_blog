@@ -123,7 +123,6 @@ public class UserController {
             SessionUserDto updateSessionUserDto = userService.updateById(sessionUserDto.getId() , updateDto);
             session.setAttribute(Define.SESSION_USER , updateSessionUserDto);
 
-
             return "redirect:/user/detail";
     }
 

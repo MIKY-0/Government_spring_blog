@@ -29,6 +29,12 @@ spring:
           timeout: 5000             # 서버 응답을 기다리는 최대 시간 (밀리초)
           writetimeout: 5000        # 데이터를 보내는 데 걸리는 최대 시간 (밀리초)
 
+  solapi:
+    api-key: ${SOLAPI_API_KEY}
+    api-secret: ${SOLAPI_API_SECRET}
+    sender: ${SOLAPI_SENDER}
+
+
 #초기 파라미터 설정.
 oauth:
   kakao:

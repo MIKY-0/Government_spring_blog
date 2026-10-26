@@ -1,5 +1,6 @@
 package com.tenco.spring_blog.board;
 
+import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.error.Exception403;
 import com.tenco.spring_blog._core.error.Exception404;
 import com.tenco.spring_blog.purchase.PurchaseJpaRepository;
@@ -141,6 +142,11 @@ public class BoardService {
         Board board = boardJpaRepository.findByIdJoinUser(id)
                 .orElseThrow(() -> new Exception404("해당 게시글은 존재하지 않습니다."));
         if(!board.isOwner(sessionUser.getId())) throw new Exception403("본인이 작성한 게시글만 삭제할 수 있습니다.");
+
+        if(purchaseJpaRepository.countByBoardId(id) > 0) {
+            log.warn("구매 내역이 있어 게시글 삭제 불가 - 게시글 ID : {}" , id);
+            throw new Exception400("구매한 사용자가 있는 게시글은 삭제 불가합니다");
+        }
 
         // 게시글삭제 , 댓글삭제를 하나의 트랜잭션 안에서.
         replyJpaRepository.deleteByBoardId(id);
