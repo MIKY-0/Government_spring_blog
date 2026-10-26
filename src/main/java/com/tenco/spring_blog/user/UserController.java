@@ -39,6 +39,12 @@ public class UserController {
         return "redirect:/";
     }
 
+    // 휴대폰 인증
+    @GetMapping("/user/sms")
+    public String certifySms(){
+        return "user/sms-form";
+    }
+
 
     // 프로필 삭제
     @PostMapping("/user/profile-image/delete")

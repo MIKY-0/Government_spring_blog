@@ -34,6 +34,9 @@ public class User {
     @Column(nullable = false)    @ColumnDefault("0")
     private int point;
 
+    @Column(nullable = false)   @ColumnDefault("false")
+    private boolean certification; // 핸드폰 인증
+
     // 프로필 이미지 파일 이름(선택사항이므로 null 가능)
     private String profileImage;
 
@@ -97,8 +100,6 @@ public class User {
         }
         this.point -= amount;
     }
-
-
 
 
     // 해당 역할을 가지고 있는지 확인.

@@ -46,9 +46,11 @@
             </div>
 
 
-            <div class="mb-3">
+            <div class="mb-3 text-center">
                 <a href="/user/update" class="btn btn-primary">회원 정보 수정</a>
-                <a href="">휴대폰 인증(도전과제)</a>
+                <a href="/user/sms" class="btn btn-primary">휴대폰 인증(도전과제)
+                    {{#user.certification}}<small>휴대폰 인증 완료되었습니다</small>{{/user.certification}}
+                </a>
                 <a href="/" class="btn btn-secondary">목록으로</a>
             </div>
         </div>
