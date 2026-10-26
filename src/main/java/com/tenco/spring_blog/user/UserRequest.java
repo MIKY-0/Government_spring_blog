@@ -6,6 +6,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class UserRequest {
     @Data
+    public class PhoneCodeDto {
+        private String phone;
+        private String code;
+
+        public void validate(){
+            if(phone == null || phone.trim().isEmpty()) throw new Exception400("핸드폰 번호를 입력해주세요");
+            if(phone.contains("-")) throw new Exception400("숫자만 입력해주세요");
+        }
+    }
+
+    @Data
     // 이메일 인증 요청 DTO(발송 , 확인 API에서 함께 사용)
     public static class EmailCheckDto{
         private String email; // 이메일 주소.(1번째 요청시 사용)
@@ -106,5 +117,5 @@ public class UserRequest {
             }
         }
     }
-    // ... 생략
+
 }

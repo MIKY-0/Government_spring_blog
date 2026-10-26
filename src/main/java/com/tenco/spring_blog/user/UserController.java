@@ -1,21 +1,18 @@
 package com.tenco.spring_blog.user;
 
-import com.tenco.spring_blog._core.error.UnauthorizedException;
 import com.tenco.spring_blog._core.util.Define;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 
 @Controller // IoC (제어의 역전) 싱글톤 패턴으로 관리됨.
@@ -39,11 +36,22 @@ public class UserController {
         return "redirect:/";
     }
 
-    // 휴대폰 인증
+    /// ------------------------------------------휴대폰 번호 인증----------------------------------------------------------
+    // 휴대폰 인증 화면
     @GetMapping("/user/sms")
     public String certifySms(){
         return "user/sms-form";
     }
+
+    @PostMapping("/api/sms/send")
+    public ResponseEntity<?> sendCode(@RequestBody UserRequest.PhoneCodeDto phoneCodeDto , HttpSession session){
+
+        return ResponseEntity.ok(Map.of("message" , "인증번호가 전송되었습니다."));
+    }
+
+
+    /// ----------------------------------------------------------------------------------------------------
+
 
 
     // 프로필 삭제

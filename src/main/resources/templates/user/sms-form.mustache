@@ -10,9 +10,10 @@
                     <button type="button" id="send-btn" onclick="sendCode()">인증번호 전송</button>
                 </div>
                 <div class="mb-3">
-                    <input type="text" class="form-control"  placeholder="인증번호 6자리">
+                    <input type="text" class="form-control"  id="code" placeholder="인증번호 6자리">
                     <button type="button" class="btn btn-secondary" id="certify" onclick="certifyCode()">확인</button>
                 </div>
+                <div id="msg" class="form-text mb-3"></div>
                 <a href="/user/detail" class="btn btn-primary">마이페이지로</a>
             </form>
         </div>
@@ -22,6 +23,7 @@
 <script>
     let isSmsVerified = false;
 
+    // 휴대폰 인증번호 받기.
     async function sendCode() {
         const phoneNumber = document.querySelector("#phoneNumber").value;
         if(!phoneNumber) {
@@ -41,15 +43,52 @@
             })
 
             const result = await response.json();
-            if(response.ok) {
-                document.querySelector("")
+            if(res.ok) {
+                alert(result.message);
+               sendBtn.innerText = "인증번호 재전송";
             }
+
         }catch(e) {
             alert('서버와 통신하지 못했습니다');
         }finally {
             sendBtn.disabled = false;
             sendBtn.innerText = "인증번호 전송";
         }
+    }
+
+
+
+    // 휴대폰 인증번호 보내기.
+    async function certifyCode() {
+        const code = document.querySelector("#code").value;
+        const phoneNumber = document.querySelector("#phoneNumber").value;
+
+        if(!code) {
+            alert('인증번호를 입력해주세요');
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/sms/verify" , {
+                method : "post" ,
+                headers : {"Content-Type" : "application/json"} ,
+                body : JSON.stringify({phoneNumber : phoneNumber , code : code})
+            })
+
+            const result = await response.json();
+            const msg = document.querySelector("#msg");
+
+            if(res.ok){
+                isSmsVerified = true;
+                msg.innerText = result.message;
+            }
+
+        }catch(e) {
+            alert('인증번호가 일치하지 않습니다')
+        }finally {
+
+        }
+
     }
 
 </script>
