@@ -28,8 +28,9 @@ public class PortOnePaymentService {
     // 3단계 : 포트원 조회(트랜잭션 밖) --> 검증(포트원 서버) --> 충전(트랜잭션 안. paymentService)
     public PaymentResponse.CompleteDto complete(Long sessionUserId, String paymentId) {
         PaymentResponse.PortOnePayment portOnePayment;
-        // 1. 포트원 서버에서 실제 결제 조회.(외부통신)
+
         try {
+            // 1. 포트원 서버에서 실제 결제 조회.(외부통신)
             portOnePayment = portOneApiClient.getPayment(paymentId);
             // 여기서 대기.
         } catch (HttpClientErrorException e) {

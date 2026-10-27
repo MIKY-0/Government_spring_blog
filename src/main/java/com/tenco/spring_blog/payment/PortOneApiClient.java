@@ -11,10 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 
-//store-id: ${PORTONE_STORE_ID:}
-//channel-key: ${PORTONE_CHANNEL_KEY:}
-//api-secret: ${PORTONE_API_SECRET:}
-
 // 포트원 서버와 HTTP 통신만 담당하는 클래스.(포트원 설정값도 이곳에서만 관리)
 @Component      @Getter     @Slf4j
 public class PortOneApiClient {
