@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,14 @@ import org.springframework.web.client.RestTemplate;
 public class UserController {
     private final UserService userService;
     private final KakaoLoginService kakaoLoginService;
+
+    // GET http://localhost:8080/user/point/charge(포인트 충전 화면)
+    @GetMapping("/user/point/charge")
+    public String chargePointForm(Model model , HttpSession session){
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        model.addAttribute("user", sessionUserDto);
+        return "user/charge-point";
+    }
 
     // 카카오 인가코드 요청 페이지로.
     @GetMapping("/kakao-login")

@@ -35,9 +35,16 @@ spring:
     sender: ${SOLAPI_SENDER}
 
 
-#초기 파라미터 설정.
+#초기 파라미터 설정. 카카오 인증.
 oauth:
   kakao:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${REDIRECT_URI}
+
+#초기 파라미터 설정. 포트원 결제 V2.
+# ":" 뒤가 비어있으면 .ENV에 값이 없어도 서버는 시작됨(결제할 때 실패)
+portone:
+  store-id: ${PORTONE_STORE_ID:}
+  channel-key: ${PORTONE_CHANNEL_KEY:}
+  api-secret: ${PORTONE_API_SECRET:}
