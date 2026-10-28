@@ -6,7 +6,6 @@ import com.tenco.spring_blog.purchase.PurchaseService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.h2.engine.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +23,15 @@ public class UserController {
     private final KakaoLoginService kakaoLoginService;
     private final PurchaseService purchaseService;
 
+
+    // GET http://localhost:8080/user/payment/list (결제 내역 화면)
+    @GetMapping("/user/payment/list")
+    public String paymentList(HttpSession session , Model model) {
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+
+        model.addAttribute("");
+        return "user/payment-list";
+    }
 
     // GET http://localhost:8080/user/purchase/list (구매 내역 화면)
     @GetMapping("/user/purchase/list")
