@@ -1,22 +1,19 @@
 package com.tenco.spring_blog.user;
 
-import com.tenco.spring_blog._core.error.UnauthorizedException;
 import com.tenco.spring_blog._core.util.Define;
+import com.tenco.spring_blog.purchase.PurchaseResponse;
+import com.tenco.spring_blog.purchase.PurchaseService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.http.*;
+import org.h2.engine.Mode;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 
 @Controller // IoC (제어의 역전) 싱글톤 패턴으로 관리됨.
@@ -25,6 +22,17 @@ import org.springframework.web.client.RestTemplate;
 public class UserController {
     private final UserService userService;
     private final KakaoLoginService kakaoLoginService;
+    private final PurchaseService purchaseService;
+
+
+    // GET http://localhost:8080/user/purchase/list (구매 내역 화면)
+    @GetMapping("/user/purchase/list")
+    public String purchaseList(HttpSession session , Model model) {
+        SessionUserDto sessionUserDto = (SessionUserDto) session.getAttribute(Define.SESSION_USER);
+        List<PurchaseResponse.ListDto> purchaseList =  purchaseService.findAllByUserId(sessionUserDto.getId());
+        model.addAttribute("purchaseList" , purchaseList);
+        return "user/purchase-list";
+    }
 
     // GET http://localhost:8080/user/point/charge(포인트 충전 화면)
     @GetMapping("/user/point/charge")

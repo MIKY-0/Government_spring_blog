@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface PurchaseJpaRepository extends JpaRepository<Purchase , Long> {
@@ -27,4 +28,14 @@ public interface PurchaseJpaRepository extends JpaRepository<Purchase , Long> {
 
     @Query("select count(p) from Purchase p where p.board.id = :boardId")
     long countByBoardId(@Param("boardId") Long boardId);
+
+    // 로그인 사용자 구매 내역 조회. 구매내역 + 게시글 제목 + 작성자명을 하나의 쿼리문으로 가져온다 (최신 구매순 정렬)
+    @Query("""
+        select p from Purchase p
+        join fetch p.board b join fetch b.user u
+        where p.user.id = :userId
+        order by p.id desc
+""")
+    List<Purchase> findAllByUserIdJoinBoard(@Param("userId")Long userId);
+
 }
