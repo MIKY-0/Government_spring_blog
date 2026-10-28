@@ -7,34 +7,38 @@
         </div>
 
         <!-- 결제내역 반복문 시작 -->
+        {{#paymentList}}
         <div class="card mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
-                        <h5 class="card-title mb-2">결제 #</h5>
-                        <p class="text-muted mb-2"><i class="fa-solid fa-user">주문번호 : 43434</i> </p>
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제번호 : 123123</i></p>
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : 123123</i></p>
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">상태 : 2423</i></p>
+                        <h5 class="card-title mb-2">결제 #{{id}}</h5>
+                        <p class="text-muted mb-2"><i class="fa-solid fa-user">주문번호 : {{paymentId}}</i> </p>
+                        {{#pgTxId}}
+                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제번호 : {{pgTxId}}</i></p>
+                        {{/pgTxId}}
+                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : {{paidAt}}</i></p>
+                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span></p>
                     </div>
                     <div class="text-end">
-                        <span class="badge bg-primary fs-6">2</span>
+                        <span class="badge bg-primary fs-6">+{{amount}}P</span>
                     </div>
                 </div>
             </div>
         </div>
-
+        {{/paymentList}}
 
        <!-- 결제 내역 없을 경우 -->
+        {{^paymentList}}
         <div class="text-center py-5">
-            <i class="fa-solid fa-cart-shopping fa-3x text-muted mb-3"></i>
+            <i class="fa-solid fa-credit-card fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">결제 내역이 없습니다</h5>
             <h5 class="text-muted">포인트를 충전해보세요</h5>
             <a href="/user/point/charge" class="btn btn-primary">포인트 충전하러가기</a>
         </div>
+        {{/paymentList}}
 
-
-        <div class="mb-4">
+        <div class="mt-4">
             <a href="/user/detail" class="btn btn-secondary">마이페이지 돌아가기</a>
         </div>
 
