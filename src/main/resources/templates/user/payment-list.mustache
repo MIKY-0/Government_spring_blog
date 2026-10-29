@@ -18,6 +18,11 @@
                         <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제번호 : {{pgTxId}}</i></p>
                         {{/pgTxId}}
                         <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : {{paidAt}}</i></p>
+
+
+                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span></p>
+
+                        <!-- 환불 여부 버튼 추가 -->
                         <p class="text-muted mb-2"><i class="fa-solid fa-calendar"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span></p>
                     </div>
                     <div class="text-end">
