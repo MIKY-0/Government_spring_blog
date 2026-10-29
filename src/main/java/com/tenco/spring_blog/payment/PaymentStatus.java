@@ -13,5 +13,4 @@ public enum PaymentStatus {
     }
 
     public String getDisplayName() {return displayName;}
-
 }
