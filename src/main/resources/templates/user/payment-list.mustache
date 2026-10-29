@@ -19,14 +19,34 @@
                         {{/pgTxId}}
                         <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : {{paidAt}}</i></p>
 
+                        <!-- 결제완료 / 환불 완료 -->
+                        {{^canceled}}
+                            <p class="text-muted mb-0">
+                                <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-secondary">{{statusDisplay}}</span>
+                            </p>
+                        {{/canceled}}
 
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span></p>
+                        {{#canceled}}
+                            <p class="text-muted mb-0">
+                                <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-secondary">{{statusDisplay}}</span>
+                            </p>
+                        {{/canceled}}
 
-                        <!-- 환불 여부 버튼 추가 -->
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span></p>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-primary fs-6">+{{amount}}P</span>
+                        <div class="text-end">
+                            {{^canceled}}
+                                <span class="badge bg-primary fs-6 d-block mb-2">+{{amount}}P</span>
+                            {{/canceled}}
+
+                            {{#canceled}}
+                                <span class="badge bg-secondary text-decoration-line-through fs-6 d-block mb-2">+{{amount}}P</span>
+                            {{/canceled}}
+
+                            <!-- 환불 여부 버튼 추가 -->
+                            {{#refundable}}
+                                <!-- 환불 요청 폼 태그 이동 : 결제 PK로 처리-->
+                                <a href="/refund/request/{{id}}" class="btn btn-outline-danger btn sm">환불 요청</a>
+                            {{/refundable}}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -43,7 +63,12 @@
         </div>
         {{/paymentList}}
 
+
         <div class="mt-4">
+            <!-- 추가 -->
+            <a href="/refund/list" class="btn btn-info">
+                <i class="fa-solid fa-rotate-left"></i>환불 요청 내역
+            </a>
             <a href="/user/detail" class="btn btn-secondary">마이페이지 돌아가기</a>
         </div>
 

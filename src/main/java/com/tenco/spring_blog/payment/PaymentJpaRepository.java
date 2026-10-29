@@ -18,12 +18,12 @@ public interface PaymentJpaRepository extends JpaRepository<Payment , Long> {
 """)
     boolean existsByPaymentId(@Param("paymentId") String paymentId);
 
+
     // 결제 내역 조회(로그인 사용자)
     @Query("""
         select p from Payment p 
-        where p.user.id = :userId and p.status = :status
+        where p.user.id = :userId and p.status in :statusList
         order by p.id
 """)
-    List<Payment> findAllByUserIdAndStatus(@Param("userId") Long userId , @Param("status") PaymentStatus status);
-
+    List<Payment> findAllByUserIdAndStatusList(@Param("userId") Long userId , @Param("statusList") List<PaymentStatus> statusList);
 }

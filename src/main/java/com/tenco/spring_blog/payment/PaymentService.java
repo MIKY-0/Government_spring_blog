@@ -2,6 +2,9 @@ package com.tenco.spring_blog.payment;
 
 import com.tenco.spring_blog._core.error.Exception400;
 import com.tenco.spring_blog._core.error.Exception403;
+import com.tenco.spring_blog.refund.Refund;
+import com.tenco.spring_blog.refund.RefundJpaRepository;
+import com.tenco.spring_blog.refund.RefundService;
 import com.tenco.spring_blog.user.User;
 import com.tenco.spring_blog.user.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +20,21 @@ import java.util.UUID;
 public class PaymentService {
     private final PaymentJpaRepository paymentJpaRepository;
     private final UserJpaRepository userJpaRepository;
+    private final RefundJpaRepository refundJpaRepository;
 
     public List<PaymentResponse.ListDto> findAllByUserId(Long userId) {
-        List<Payment> paymentList = paymentJpaRepository.findAllByUserIdAndStatus(userId , PaymentStatus.PAID);
+        List<Payment> paymentList = paymentJpaRepository
+                .findAllByUserIdAndStatusList(userId , List.of(PaymentStatus.PAID , PaymentStatus.CANCELED));
 
-        // 응답 DTO 설계 후 리턴.
-        return paymentList.stream().map(PaymentResponse.ListDto::new).toList();
+        // 2. 결제 완료 상태면 환불 가능. 아니면 불가. 추후 연산해서 만들어서 내려준다.
+        // 응답 DTO 설계 후 리턴.  환불 테이블에 내가 요청한 PK정보만 리스트로 뽑기.
+
+        List<Long> paymentId = refundJpaRepository.findPaymentPkListByUserId(userId);
+
+        return paymentList.stream()
+                .map(p -> new PaymentResponse.ListDto(p ,
+                        !paymentId.contains(p.getId()) && p.getStatus() != PaymentStatus.CANCELED))
+                .toList();
     }
 
     /*

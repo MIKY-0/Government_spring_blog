@@ -2,8 +2,9 @@ package com.tenco.spring_blog.payment;
 
 public enum PaymentStatus {
     READY("결제 대기") , // 결게 예정.
-    PAID("결제 완료"); // 결제 확인 및 포인트 지급 완료.
-    // 반드시 세미콜론 붙여야함.
+    PAID("결제 완료") , // 결제 확인 및 포인트 지급 완료.
+    CANCELED("결제완료");  // 반드시 세미콜론 붙여야함.
+
 
     // 화면에 표시할 이름 변수 정보.
     private final String displayName;
