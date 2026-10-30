@@ -58,7 +58,6 @@ public class PaymentService {
                 .user(user)
                 .amount(amount)
                 .build();
-
         paymentJpaRepository.save(payment);
 
         return paymentId;
@@ -70,7 +69,6 @@ public class PaymentService {
                 UUID.randomUUID().toString().substring(0 , 8);
         return paymentId;
     }
-
 
     /*
     3단계 : 결제 검증 + 포인트 충전
