@@ -20,7 +20,7 @@ public class AdminInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
         SessionUserDto sessionUserDto = (session == null) ? null : (SessionUserDto) session.getAttribute(Define.SESSION_USER);
         if(sessionUserDto == null) throw new UnauthorizedException("로그인 먼저 해주세요");
-        if(sessionUserDto.isAdmin()) throw new Exception403("관리자 전용 페이지입니다");
+        if(!sessionUserDto.isAdmin()) throw new Exception403("관리자 전용 페이지입니다");
         return true;
     }
 }

@@ -6,6 +6,7 @@ import com.tenco.spring_blog._core.error.Exception404;
 import com.tenco.spring_blog.payment.Payment;
 import com.tenco.spring_blog.payment.PaymentJpaRepository;
 import com.tenco.spring_blog.payment.PaymentResponse;
+import com.tenco.spring_blog.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -67,5 +68,67 @@ public class RefundService {
         List<Refund> refundList = refundJpaRepository.findAllByUserIdJoinPayment(sessionUserId);
 
         return refundList.stream().map(RefundResponse.RefundListDto::new).toList();
+    }
+
+
+    // 관리자에게 환불요청내역 조회.
+    public List<RefundResponse.AdminListDto> findAllForAdmin() {
+        List<Refund> refundList = refundJpaRepository.findAllJoinUserAndPayment();
+
+        return refundList.stream().map(RefundResponse.AdminListDto::new).toList();
+    }
+
+    @Transactional
+    public void reject(Long refundId, String rejectReason) {
+        // 1. 넘겨 받은 refundId 기준으로 조회부터. 엔티티 정보를 업데이트 하려고.
+        Refund refund = refundJpaRepository.findById(refundId).orElseThrow(() -> new Exception404("환불요청을 찾을 수 없음"));
+
+        // 2. 이미 승인 , 거절된 요청은 또 처리할 필요없음.
+        if(!refund.isPending()) throw new Exception400("이미 처리된 환불 요청입니다");
+
+        refund.reject(rejectReason);
+    }
+
+    /**
+     * 관리자 승인 1단계 : 승인 가능한지 검사
+     * @param refundId
+     * @return : 포트원 결제 취소에 필요한 값.
+     */
+    public RefundResponse.ApproveDto checkApprove(Long refundId) {
+        // refund엔티티 + 요청자의 남은 포인트 가져와야함.
+        Refund refund = refundJpaRepository.findByIdJoinUserAndPayment(refundId)
+                .orElseThrow(() -> new Exception404("환불 요청을 찾을 수 없습니다"));
+
+        if(!refund.isPending()) throw new Exception400("이미 처리된 환불 요청입니다");
+
+        // 결제(PAID , READY)
+        Payment payment = refund.getPayment();
+        if(!payment.isPaid()) throw new Exception400("결제되지 않은 요청입니다");
+
+        // 유저가 충전한 포인트를 이미 사용했다면 돌려받을 포인트가 없어서 환불 불가.
+        User user = refund.getUser();
+        if(user.getPoint() < payment.getAmount()) throw new Exception400("포인트 잔액이 부족하여 환불할 수 없습니다");
+
+        return new RefundResponse.ApproveDto(payment.getPaymentId() , payment.getAmount());
+    }
+
+    // 환불 승인 DB 반영
+    @Transactional
+    public void approve(Long refundId) {
+        Refund refund = refundJpaRepository.findByIdJoinUserAndPayment(refundId)
+                .orElseThrow(() -> new Exception404("환불 요청을 찾을 수 없습니다"));
+
+        // PortOneRefundService의 1 ~ 4번 실행중 다른 요청이 같은 건을 처리할 수 있으므로 한번 더 확인.
+        if(!refund.isPending()) throw new Exception400("대기중인 환불 요청만 환불 승인 신청 가능");
+        Payment payment = refund.getPayment();
+
+        // 포인트 차감.
+        refund.getUser().deductPoint(payment.getAmount());
+
+        // Canceled로 변경.
+        payment.markCancelled();
+
+        // APPROVED로 변경.
+        refund.approve();
     }
 }

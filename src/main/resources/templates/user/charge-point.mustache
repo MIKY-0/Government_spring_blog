@@ -79,7 +79,7 @@
                 })
                 const prepare = await prepareRes.json()
                 if(!prepareRes.ok) {
-                    alert("잘못된 요청입니다");
+                    throw new Error(prepare.message)
                 }
 
                 // 2단계 : 포트원 SDK를 이용해 결제창 호출(카카오페이 = 간편결제) 실제 결제 진행.
@@ -98,6 +98,7 @@
                 // 결제 실패나 취소 시 응답에 code가 들어있음.
                 if(!paymentRes || paymentRes.code !== undefined) {
                     alert("결제가 완료되지 않음");
+                    return;
                 }
 
                 // 3단계 : 서버 검증 요청(우리서버에서 포트원 서버로 직접 HTTP통신 후 정상적인 부분 확인후 포인트 충전)
@@ -109,7 +110,7 @@
 
                 const result = await completeRes.json();
                 if(!completeRes.ok) {
-                    alert("포인트 충전에 실패했습니다");
+               throw new Error(result.message())
                 }
 
                 alert("충전이 완료되었습니다\n충전금액 : " + result.amount.toLocaleString() + "P\n현재 보유포인트 : " + result.currentPoint);
@@ -117,7 +118,7 @@
                 location.href = "/user/detail"
 
             } catch (e) {
-                alert(e.message + " : 서버와 통신하지 못했습니다")
+                alert("서버와 통신하지 못했습니다")
             } finally {
               chargeBtn.disabled = false;
             }

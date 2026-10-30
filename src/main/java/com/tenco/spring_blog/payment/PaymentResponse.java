@@ -9,6 +9,20 @@ import lombok.NoArgsConstructor;
 
 
 public class PaymentResponse {
+    @Data    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class PortOneCancel{
+        private Cancellation cancellation;
+
+        @Data    @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class Cancellation{
+            private String id;
+            private String status;
+            private int totalAmount;
+        }
+
+    }
+
+
     @Data
     public static class ListDto {
         private Long id;

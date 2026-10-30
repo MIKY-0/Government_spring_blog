@@ -66,4 +66,7 @@ public class Payment {
         this.pgTxId = pgTxId;
     }
 
+    // 환불 승인 됐을때 CANCELD로 변경.
+    public void markCancelled() {this.status = PaymentStatus.CANCELED;}
+
 }

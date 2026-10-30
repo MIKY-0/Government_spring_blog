@@ -6,72 +6,73 @@
             <h4><b>결제 내역</b></h4>
         </div>
 
-        <!-- 결제내역 반복문 시작 -->
-        {{#paymentList}}
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="flex-grow-1">
-                        <h5 class="card-title mb-2">결제 #{{id}}</h5>
-                        <p class="text-muted mb-2"><i class="fa-solid fa-user">주문번호 : {{paymentId}}</i> </p>
-                        {{#pgTxId}}
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제번호 : {{pgTxId}}</i></p>
-                        {{/pgTxId}}
-                        <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : {{paidAt}}</i></p>
+        <div class="card-body">
+            <!-- 결제내역 반복문 시작 -->
+            {{#paymentList}}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-2">결제 #{{id}}</h5>
+                            <p class="text-muted mb-2"><i class="fa-solid fa-user">주문번호 : {{paymentId}}</i> </p>
+                            {{#pgTxId}}
+                            <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제번호 : {{pgTxId}}</i></p>
+                            {{/pgTxId}}
+                            <p class="text-muted mb-2"><i class="fa-solid fa-calendar">결제일 : {{paidAt}}</i></p>
 
-                        <!-- 결제완료 / 환불 완료 -->
-                        {{^canceled}}
-                            <p class="text-muted mb-0">
-                                <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-secondary">{{statusDisplay}}</span>
-                            </p>
-                        {{/canceled}}
-
-                        {{#canceled}}
-                            <p class="text-muted mb-0">
-                                <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-secondary">{{statusDisplay}}</span>
-                            </p>
-                        {{/canceled}}
-
-                        <div class="text-end">
+                            <!-- 결제완료 / 환불 완료 -->
                             {{^canceled}}
-                                <span class="badge bg-primary fs-6 d-block mb-2">+{{amount}}P</span>
+                                <p class="text-muted mb-0">
+                                    <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-success">{{statusDisplay}}</span>
+                                </p>
                             {{/canceled}}
 
                             {{#canceled}}
-                                <span class="badge bg-secondary text-decoration-line-through fs-6 d-block mb-2">+{{amount}}P</span>
+                                <p class="text-muted mb-0">
+                                    <i class="fa-solid fa-circle-info"></i>상태 : <span class="badge bg-secondary">{{statusDisplay}}</span>
+                                </p>
                             {{/canceled}}
 
-                            <!-- 환불 여부 버튼 추가 -->
-                            {{#refundable}}
-                                <!-- 환불 요청 폼 태그 이동 : 결제 PK로 처리-->
-                                <a href="/refund/request/{{id}}" class="btn btn-outline-danger btn sm">환불 요청</a>
-                            {{/refundable}}
+                            <div class="text-end">
+                                {{^canceled}}
+                                    <span class="badge bg-primary fs-6 d-block mb-2">+{{amount}}P</span>
+                                {{/canceled}}
+
+                                {{#canceled}}
+                                    <span class="badge bg-secondary text-decoration-line-through fs-6 d-block mb-2">+{{amount}}P</span>
+                                {{/canceled}}
+
+                                <!-- 환불 여부 버튼 추가 -->
+                                {{#refundable}}
+                                    <!-- 환불 요청 폼 태그 이동 : 결제 PK로 처리-->
+                                    <a href="/refund/request/{{id}}" class="btn btn-outline-danger btn sm">환불 요청</a>
+                                {{/refundable}}
+                            </div>
                         </div>
                     </div>
                 </div>
+
+            {{/paymentList}}
+
+           <!-- 결제 내역 없을 경우 -->
+            {{^paymentList}}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-credit-card fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">결제 내역이 없습니다</h5>
+                <h5 class="text-muted">포인트를 충전해보세요</h5>
+                <a href="/user/point/charge" class="btn btn-primary">포인트 충전하러가기</a>
+            </div>
+            {{/paymentList}}
+
+
+            <div class="mt-4">
+                <!-- 추가 -->
+                <a href="/refund/list" class="btn btn-info">
+                    <i class="fa-solid fa-rotate-left"></i>환불 요청 내역
+                </a>
+                <a href="/user/detail" class="btn btn-secondary">마이페이지 돌아가기</a>
             </div>
         </div>
-        {{/paymentList}}
-
-       <!-- 결제 내역 없을 경우 -->
-        {{^paymentList}}
-        <div class="text-center py-5">
-            <i class="fa-solid fa-credit-card fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">결제 내역이 없습니다</h5>
-            <h5 class="text-muted">포인트를 충전해보세요</h5>
-            <a href="/user/point/charge" class="btn btn-primary">포인트 충전하러가기</a>
-        </div>
-        {{/paymentList}}
-
-
-        <div class="mt-4">
-            <!-- 추가 -->
-            <a href="/refund/list" class="btn btn-info">
-                <i class="fa-solid fa-rotate-left"></i>환불 요청 내역
-            </a>
-            <a href="/user/detail" class="btn btn-secondary">마이페이지 돌아가기</a>
-        </div>
-
     </div>
 </div>
 
